@@ -179,13 +179,13 @@
 </div>
 
 <script>
-  // 사용자 웹앱 URL 적용 완료
+  // 이전에 알려주신 웹앱 URL이 적용되어 있습니다.
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJC7zzpxsmT2Zh0QELyeWCBju4hIjhsXqbkDG4H0CrG57KoEglZVBl6h-E-hSSa7Aw/exec'; 
 
   let menuData = []; 
   let currentMenu = '';
 
-  // [수정됨] 구글 시트 데이터 불러오기 (리다이렉트 자동 처리 적용)
+  // 구글 시트 데이터 불러오기
   async function fetchMenuData() {
     const list = document.getElementById('menu-list');
     list.innerHTML = `<p style="grid-column: span 3; text-align: center; font-weight: bold; padding: 40px; color: #555;">구글 시트에서 데이터를 불러오는 중입니다... ⏳</p>`;
@@ -193,7 +193,7 @@
     try {
       const response = await fetch(SCRIPT_URL, {
         method: 'GET',
-        redirect: 'follow' // 브라우저 리다이렉트 자동 처리 보완
+        redirect: 'follow'
       });
       const data = await response.json();
       
@@ -203,7 +203,7 @@
       renderMenu(activeTab);
     } catch (error) {
       console.error('Error fetching data:', error);
-      list.innerHTML = `<p style="grid-column: span 3; text-align: center; color: #dc2626; font-weight: bold; padding: 40px;">데이터를 불러오는데 실패했습니다. 네트워크 연결을 확인하거나 관리자에게 문의하세요.</p>`;
+      list.innerHTML = `<p style="grid-column: span 3; text-align: center; color: #dc2626; font-weight: bold; padding: 40px;">데이터를 불러오는데 실패했습니다. 네트워크 연결을 확인해주세요.</p>`;
     }
   }
 
@@ -223,11 +223,21 @@
     filtered.forEach(item => {
       const article = document.createElement('article');
       article.className = 'nt-card';
+      
+      // ★ 변경된 부분: 구글 시트에 사진 URL이 있으면 이미지를 표시합니다.
+      const imageHTML = item.imageUrl 
+        ? `<img src="${item.imageUrl}" style="width: 100%; height: 160px; object-fit: cover; margin-bottom: 12px; border-radius: 8px;">` 
+        : '';
+
       article.innerHTML = `
         <div class="nt-cover ${item.coverClass}"></div>
         <div class="nt-meta">
           <small>${item.category}</small>
           <h3>${item.name}</h3>
+          
+          <!-- 사진이 나타나는 영역 -->
+          ${imageHTML}
+          
           <div class="recipe-box">${item.details}</div>
           
           <div class="card-actions">
@@ -237,6 +247,7 @@
             </label>
             <button class="btn-action btn-feedback" onclick="openModal('${item.name}')">✍️ 보완 요청</button>
           </div>
+          <!-- 방금 업로드한 사진이 즉시 나타나는 영역 -->
           <div id="preview-${item.name}" class="status-msg"></div>
         </div>
       `;
@@ -327,8 +338,13 @@
       });
       
       if(previewDiv) {
-        previewDiv.style.color = '#059669';
-        previewDiv.innerText = "✅ 사진이 등록되었습니다.";
+        if(base64Image) {
+          // ★ 변경된 부분: 업로드 성공 시, 방금 찍은 사진을 그 자리에 즉시 띄워줍니다.
+          previewDiv.innerHTML = `<img src="${base64Image}" style="width: 100%; height: 160px; object-fit: cover; margin-top: 12px; border-radius: 8px; border: 2px solid #059669;">`;
+        } else {
+          previewDiv.style.color = '#059669';
+          previewDiv.innerText = "✅ 보완 요청이 등록되었습니다.";
+        }
       }
     } catch (error) {
       console.error('Error:', error);
