@@ -1,205 +1,31 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>테이크아웃 인당량 대시보드</title>
-  <style>
-    /* CSS 변수 설정 (누락된 기본 테마값 추가) */
-    :root {
-      --bg-base: #f9f9fa;
-      --bg-subtle: #f0f0f2;
-      --bg-elevated: #ffffff;
-      --text-primary: #111111;
-      --text-secondary: #555555;
-      --text-tertiary: #888888;
-      --color-primary-50: #fcebeb;
-      --color-primary-500: #e60012;
-      --text-on-primary: #ffffff;
-      --border-default: #e5e5e5;
-      --space-md: 16px;
-      --space-lg: 24px;
-      --space-xl: 40px;
-      --space-2xl: 64px;
-      --radius-lg: 12px;
-      --radius-full: 9999px;
-      --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-      --shadow-md: 0 8px 16px rgba(0,0,0,0.1);
-      --duration-fast: 0.2s;
-      --duration-base: 0.3s;
-      --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
-      --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    /* 사용자 제공 닌텐도 테마 CSS */
-    body { margin: 0; }
-    .nt-demo, .nt-demo * { box-sizing: border-box; }
-    .nt-demo { min-height: 100vh; overflow-x: hidden; background: var(--bg-base); color: var(--text-primary); font: 14px/1.55 'Pretendard','Segoe UI',sans-serif; }
-    .nt-header { min-height: 58px; padding: 10px var(--space-lg); display: flex; align-items: center; gap: var(--space-lg); background: var(--color-primary-500); color: var(--text-on-primary); position: sticky; top: 0; z-index: 10; }
-    .nt-logo { border: 2px solid #fff; border-radius: var(--radius-full); padding: 5px 12px; font: 800 15px/1 Arial,sans-serif; letter-spacing: -.05em; }
-    .nt-switch-mark { display: flex; align-items: center; gap: 7px; font: 800 11px/1 Arial,sans-serif; letter-spacing: .08em; }
-    .nt-switch-mark i { width: 24px; height: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-    .nt-switch-mark i::before, .nt-switch-mark i::after { content: ""; display: block; border: 2px solid #fff; }
-    .nt-switch-mark i::before { border-radius: 9px 3px 3px 9px; background: radial-gradient(circle at 55% 30%,#fff 0 2px,transparent 3px); }
-    .nt-switch-mark i::after { border-radius: 3px 9px 9px 3px; background: radial-gradient(circle at 45% 70%,#fff 0 2px,transparent 3px); }
-    
-    .nt-nav { display: flex; gap: 3px; margin-left: auto; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-    .nt-nav::-webkit-scrollbar { display: none; }
-    .nt-nav span { padding: 8px 13px; border-radius: var(--radius-full); font-weight: 700; font-size: 13px; opacity: .84; cursor: pointer; transition: 0.2s; }
-    .nt-nav .active { background: rgba(255,255,255,.25); opacity: 1; }
-    
-    .nt-hero { min-height: 340px; padding: var(--space-xl) var(--space-2xl); display: grid; grid-template-columns: .85fr 1.15fr; align-items: center; gap: var(--space-xl); background: radial-gradient(circle at 78% 44%,rgba(230,0,18,.13),transparent 32%),var(--bg-subtle); border-bottom: 1px solid var(--border-default); }
-    .nt-eyebrow { color: var(--color-primary-500); font: 800 11px/1 Arial,sans-serif; letter-spacing: .16em; }
-    .nt-copy h1 { max-width: 430px; margin: 10px 0 12px; color: var(--text-primary); font-size: clamp(28px,5vw,58px); line-height: 1.1; letter-spacing: -.055em; font-weight: 900; }
-    .nt-copy p { max-width: 390px; margin: 0 0 var(--space-lg); color: var(--text-secondary); font-size: 15px; }
-    
-    .nt-product { min-height: 250px; display: grid; place-items: center; position: relative; }
-    .nt-product::before { content: ""; width: 270px; height: 270px; position: absolute; border-radius: 50%; background: var(--color-primary-50); }
-    .nt-console { position: relative; z-index: 1; display: flex; align-items: center; filter: drop-shadow(0 22px 20px rgba(0,0,0,.24)); transform: rotate(-3deg); transition: transform var(--duration-base) var(--ease-spring); }
-    .nt-console:hover { transform: rotate(0) scale(1.025); }
-    .nt-joy { width: 48px; height: 178px; position: relative; }
-    .nt-joy.left { background: #00C3E3; border-radius: 28px 7px 7px 28px; }
-    .nt-joy.right { background: #FF4554; border-radius: 7px 28px 28px 7px; }
-    .nt-stick { width: 20px; height: 20px; position: absolute; border: 4px solid rgba(255,255,255,.92); border-radius: 50%; }
-    .nt-joy.left .nt-stick { top: 33px; left: 15px; }
-    .nt-joy.right .nt-stick { top: 65px; left: 13px; }
-    .nt-dot { width: 9px; height: 9px; position: absolute; border-radius: 50%; background: #fff; }
-    .nt-joy.left .nt-dot { right: 11px; bottom: 35px; }
-    .nt-joy.right .nt-dot { left: 11px; top: 30px; }
-    .nt-screen { width: 280px; height: 164px; padding: 12px; background: #19191D; border: 7px solid #2C2C31; display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
-    .nt-game { min-width: 0; display: flex; align-items: flex-end; padding: 8px 5px; overflow: hidden; color: #fff; font: 800 10px/1.15 Arial,sans-serif; text-shadow: 0 1px 3px rgba(0,0,0,.45); border-radius: 4px; }
-    .nt-game.mario { background: radial-gradient(circle at 50% 25%,#fff 0 12%,transparent 13%),linear-gradient(145deg,#FF5D65,#C90010); }
-    .nt-game.zelda { background: linear-gradient(145deg,#7BBC99,#164A35); color: #FFE59A; }
-    .nt-game.animal { background: radial-gradient(circle at 70% 20%,#FFF4B2 0 12%,transparent 13%),linear-gradient(145deg,#75D9CC,#328E73); }
-    .nt-game.splatoon { background: radial-gradient(circle at 35% 34%,#FF75C8 0 16%,transparent 17%),linear-gradient(145deg,#7340D0,#17215E); }
-    
-    .nt-features { padding: var(--space-xl) var(--space-2xl) var(--space-2xl); background: var(--bg-base); }
-    .nt-section-head { margin-bottom: var(--space-lg); display: flex; align-items: end; justify-content: space-between; gap: var(--space-md); }
-    .nt-section-head h2 { margin: 0; font-size: 26px; line-height: 1.15; letter-spacing: -.025em; font-weight: 800; }
-    
-    .nt-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--space-md); }
-    .nt-card { overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); transition: transform var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out); display: flex; flex-direction: column; }
-    .nt-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    
-    .nt-cover { height: 80px; position: relative; display: grid; place-items: center; overflow: hidden; }
-    .nt-cover.mario { background: linear-gradient(135deg,#FF5D65,#C90010); }
-    .nt-cover.zelda { background: radial-gradient(circle at 50% 35%,#7DBB91,transparent 33%),linear-gradient(#173D30,#0D261F); }
-    .nt-cover.online { background: linear-gradient(145deg,#FF3544,#B9000E); }
-    
-    .nt-meta { padding: var(--space-md); flex: 1; display: flex; flex-direction: column; }
-    .nt-meta small { color: var(--color-primary-500); font-weight: 900; letter-spacing: .08em; font-size: 11px; }
-    .nt-meta h3 { margin: 5px 0 10px; color: var(--text-primary); font-size: 20px; line-height: 1.25; font-weight: 800; }
-    
-    /* 인당량 레시피 텍스트 박스 */
-    .recipe-box { background: #f3f4f6; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 16px; font-weight: 700; color: #1f2937; line-height: 1.6; white-space: pre-line; flex: 1; }
-    
-    /* 기능 버튼 스타일 추가 */
-    .card-actions { display: flex; gap: 8px; margin-top: auto; }
-    .btn-action { flex: 1; padding: 12px 0; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-align: center; font-size: 13px; transition: opacity 0.2s; }
-    .btn-action:active { opacity: 0.7; }
-    .btn-photo { background: #e5e7eb; color: #374151; display: block; }
-    .btn-feedback { background: #fee2e2; color: #b91c1c; }
-    .status-msg { font-size: 12px; font-weight: bold; color: #059669; margin-top: 8px; text-align: center; }
-
-    /* 모달 스타일 */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background: #fff; width: 100%; max-width: 400px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-title { margin: 0 0 16px; font-size: 18px; font-weight: 800; }
-    .modal-textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border-default); border-radius: 8px; margin-bottom: 16px; font-family: inherit; resize: none; outline: none; }
-    .modal-textarea:focus { border-color: var(--color-primary-500); }
-    .modal-btns { display: flex; gap: 10px; }
-    .modal-btns button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .btn-cancel { background: #e5e7eb; color: #374151; }
-    .btn-submit { background: var(--color-primary-500); color: #fff; }
-
-    /* 모바일 반응형 조정 */
-    @media (max-width:760px) {
-      .nt-nav { margin-left: 0; padding: 5px 0; width: 100%; }
-      .nt-hero { grid-template-columns:1fr; padding:var(--space-xl) var(--space-lg); text-align:center; min-height: auto; }
-      .nt-copy p { margin-left:auto; margin-right:auto; }
-      .nt-product { transform:scale(.85); margin:-15px 0 20px; }
-      .nt-features { padding:var(--space-xl) var(--space-lg); }
-      .nt-grid { grid-template-columns:1fr; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="nt-demo">
-  <header class="nt-header">
-    <span class="nt-logo">Dashboard</span>
-    <span class="nt-switch-mark"><i></i>TAKEOUT</span>
-    <nav class="nt-nav" id="category-nav">
-      <span class="active" data-cat="샐러드">샐러드</span>
-      <span data-cat="델리">델리</span>
-      <span data-cat="요거트">요거트</span>
-      <span data-cat="과일">과일</span>
-      <span data-cat="김밥">김밥</span>
-      <span data-cat="말이">말이</span>
-    </nav>
-  </header>
-
-  <main>
-    <section class="nt-hero">
-      <div class="nt-copy">
-        <div class="nt-eyebrow">PRECISE & PERFECT</div>
-        <h1>정확한 계량,<br>완벽한 맛.</h1>
-        <p>현장에서 바로 레시피 인당량을 확인하고, 사진과 피드백을 통해 퀄리티를 함께 관리해보세요.</p>
-      </div>
-      <div class="nt-product" aria-label="콘솔 일러스트">
-        <div class="nt-console">
-          <div class="nt-joy left"><span class="nt-stick"></span><span class="nt-dot"></span></div>
-          <div class="nt-screen">
-            <span class="nt-game mario">SALAD</span>
-            <span class="nt-game zelda">DELI</span>
-            <span class="nt-game animal">FRUIT</span>
-            <span class="nt-game splatoon">GIMBAP</span>
-          </div>
-          <div class="nt-joy right"><span class="nt-stick"></span><span class="nt-dot"></span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="nt-features">
-      <div class="nt-section-head">
-        <h2 id="current-category-title">샐러드 메뉴</h2>
-      </div>
-      
-      <!-- 카드 리스트가 렌더링될 영역 -->
-      <div class="nt-grid" id="menu-list"></div>
-    </section>
-  </main>
-</div>
-
-<!-- 피드백 입력 모달 -->
-<div class="modal-overlay" id="feedback-modal">
-  <div class="modal-content">
-    <h3 class="modal-title" id="modal-menu-name">메뉴명 요청사항</h3>
-    <textarea class="modal-textarea" id="feedback-text" placeholder="예: 샐러드 10g 추가 필요, 소스 양 조절 등 현장 의견을 적어주세요."></textarea>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">취소</button>
-      <button class="btn-submit" onclick="submitFeedback()">시트로 전송</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  // ★ 구글 앱스 스크립트 배포 URL 입력 필수 ★
+  // 1. 발급받으신 앱스 스크립트 URL 적용 완료
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJC7zzpxsmT2Zh0QELyeWCBju4hIjhsXqbkDG4H0CrG57KoEglZVBl6h-E-hSSa7Aw/exec'; 
 
-  // 메뉴 데이터 세팅 (테마 색상을 위한 coverClass 추가)
-  const menuData = [
-    { category: '샐러드', name: '단호박 리코타 샐러드', details: '단호박 60g\n리코타치즈 40g\n믹스채소 70g\n발사믹 드레싱', coverClass: 'mario' },
-    { category: '샐러드', name: '닭가슴살 샐러드', details: '수비드 닭가슴살 80g\n방울토마토 30g\n야채 70g\n오리엔탈', coverClass: 'zelda' },
-    { category: '델리', name: '에그 샌드위치', details: '식빵 2장\n에그마요 90g\n슬라이스햄 20g\n치즈 1장', coverClass: 'online' },
-    { category: '과일', name: '계절 컵과일', details: '수박 50g\n파인애플 40g\n적포도 30g', coverClass: 'mario' },
-    { category: '김밥', name: '참치 마요 김밥', details: '밥 120g\n참치마요 40g\n단무지/우엉 30g\n김 1장', coverClass: 'zelda' }
-  ];
-
+  let menuData = []; // 구글 시트에서 불러올 데이터가 담길 빈 배열
   let currentMenu = '';
 
-  // 1. 메뉴 렌더링 함수
+  // 2. 구글 시트에서 데이터를 실시간으로 불러오는 함수
+  async function fetchMenuData() {
+    const list = document.getElementById('menu-list');
+    list.innerHTML = `<p style="grid-column: span 3; text-align: center; font-weight: bold; padding: 40px; color: #555;">구글 시트에서 레시피 데이터를 불러오는 중입니다... ⏳</p>`;
+
+    try {
+      const response = await fetch(SCRIPT_URL);
+      const data = await response.json();
+      
+      menuData = data; // 불러온 데이터를 배열에 저장
+      
+      // 현재 활성화된 탭에 맞춰 화면 렌더링 (기본값: 샐러드)
+      const activeTab = document.querySelector('#category-nav span.active').dataset.cat;
+      renderMenu(activeTab);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      list.innerHTML = `<p style="grid-column: span 3; text-align: center; color: #dc2626; font-weight: bold; padding: 40px;">데이터를 불러오는데 실패했습니다. 네트워크 연결을 확인해주세요.</p>`;
+    }
+  }
+
+  // 3. 메뉴 렌더링 함수
   function renderMenu(category) {
     document.getElementById('current-category-title').innerText = category + ' 메뉴';
     const list = document.getElementById('menu-list');
@@ -208,7 +34,7 @@
     const filtered = menuData.filter(m => m.category === category);
     
     if(filtered.length === 0) {
-      list.innerHTML = `<p style="grid-column: span 3; color: #888;">등록된 메뉴가 없습니다.</p>`;
+      list.innerHTML = `<p style="grid-column: span 3; text-align: center; padding: 20px; color: #888;">이 카테고리에 등록된 메뉴가 없습니다.</p>`;
       return;
     }
 
@@ -236,19 +62,16 @@
     });
   }
 
-  // 2. 탭 클릭 이벤트 (네비게이션)
+  // 4. 탭 클릭 이벤트 (네비게이션)
   document.querySelectorAll('#category-nav span').forEach(tab => {
     tab.addEventListener('click', (e) => {
-      // 탭 활성화 UI 변경
       document.querySelectorAll('#category-nav span').forEach(t => t.classList.remove('active'));
       e.target.classList.add('active');
-      
-      // 해당 카테고리 렌더링
       renderMenu(e.target.dataset.cat);
     });
   });
 
-  // 3. 모달 제어 로직
+  // 5. 모달 제어 로직
   function openModal(menuName) {
     currentMenu = menuName;
     document.getElementById('modal-menu-name').innerText = menuName + " 요청사항";
@@ -260,13 +83,13 @@
     document.getElementById('feedback-modal').classList.remove('active');
   }
 
-  // 4. [핵심] 브라우저 단에서 이미지 압축 및 전송
+  // 6. 브라우저 단에서 이미지 압축
   function handleImageUpload(event, menuName) {
     const file = event.target.files[0];
     if (!file) return;
 
     const previewDiv = document.getElementById(`preview-${menuName}`);
-    previewDiv.style.color = '#d97706'; // 로딩 색상
+    previewDiv.style.color = '#d97706';
     previewDiv.innerText = "사진 압축 및 전송 중... ⏳";
 
     const reader = new FileReader();
@@ -274,7 +97,7 @@
       const img = new Image();
       img.onload = function() {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800; // 가로 최대 800px 압축
+        const MAX_WIDTH = 800;
         const scaleSize = MAX_WIDTH / img.width;
         canvas.width = MAX_WIDTH;
         canvas.height = img.height * scaleSize;
@@ -282,10 +105,7 @@
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         
-        // JPEG 포맷, 품질 80%로 압축
         const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // 전송
         sendDataToGoogleSheet(menuName, '', base64Image, previewDiv);
       }
       img.src = e.target.result;
@@ -293,7 +113,7 @@
     reader.readAsDataURL(file);
   }
 
-  // 5. 피드백 전송 로직
+  // 7. 피드백 전송 로직
   function submitFeedback() {
     const text = document.getElementById('feedback-text').value;
     if (!text) return alert('내용을 입력해주세요.');
@@ -309,14 +129,8 @@
     });
   }
 
-  // 6. 구글 앱스 스크립트 Fetch (POST) 요청
+  // 8. 구글 앱스 스크립트 Fetch (POST) 요청
   async function sendDataToGoogleSheet(menuName, feedbackText, base64Image, previewDiv) {
-    if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxJC7zzpxsmT2Zh0QELyeWCBju4hIjhsXqbkDG4H0CrG57KoEglZVBl6h-E-hSSa7Aw/exec') {
-      alert('⚠️ 구글 앱스 스크립트 URL을 연동해주세요.');
-      if(previewDiv) previewDiv.innerText = "";
-      return;
-    }
-
     const payload = {
       menuName: menuName,
       feedback: feedbackText,
@@ -331,22 +145,20 @@
       });
       
       if(previewDiv) {
-        previewDiv.style.color = '#059669'; // 성공 색상
+        previewDiv.style.color = '#059669';
         previewDiv.innerText = "✅ 사진이 등록되었습니다.";
       }
     } catch (error) {
       console.error('Error:', error);
       if(previewDiv) {
-        previewDiv.style.color = '#dc2626'; // 실패 색상
+        previewDiv.style.color = '#dc2626';
         previewDiv.innerText = "❌ 전송 실패";
       }
     }
   }
 
-  // 화면 로드 시 초기 '샐러드' 카테고리 렌더링
+  // 화면 로드 시 구글 시트에서 데이터 불러오기 실행
   window.onload = () => {
-    renderMenu('샐러드');
+    fetchMenuData();
   };
 </script>
-</body>
-</html>
