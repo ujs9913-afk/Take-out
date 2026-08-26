@@ -28,7 +28,7 @@
     .cat-btn { padding: 16px 10px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
     .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
 
-    /* 검색 및 드롭다운 영역 */
+    /* 커스텀 스마트 검색창 */
     .dropdown-wrapper { margin-bottom: 24px; }
     .dropdown-wrapper label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
     .search-box { display: flex; gap: 8px; }
@@ -38,30 +38,43 @@
 
     /* 카드 스타일 */
     .menu-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
-    .menu-title { font-size: 20px; font-weight: 800; margin: 0 0 16px 0; }
+    
+    /* ★ 제목 글자 크기 조정 */
+    .menu-title { font-size: 32px; font-weight: 900; margin: 0 0 16px 0; color: var(--primary); }
     
     /* 1:1 사진 영역 */
     .img-box { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; background: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
     .img-box img { width: 100%; height: 100%; object-fit: cover; }
     .img-placeholder { color: #94a3b8; font-size: 14px; font-weight: 600; }
 
-    .recipe-details { background: #f8fafc; padding: 16px; border-radius: 12px; font-size: 15px; line-height: 1.6; color: #334155; font-weight: 600; margin-bottom: 16px; white-space: pre-line; }
+    /* ★ 내용 글자 크기 3배(45px) 확대 적용 */
+    .recipe-details { 
+      background: #f8fafc; 
+      padding: 20px; 
+      border-radius: 12px; 
+      font-size: 45px; 
+      line-height: 1.4; 
+      color: #334155; 
+      font-weight: 800; 
+      margin-bottom: 16px; 
+      white-space: pre-line; 
+    }
 
     /* 버튼 영역 */
     .actions { display: flex; gap: 10px; }
-    .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; }
+    .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; }
     .btn-photo { background: #e2e8f0; color: #475569; display: block; }
     .btn-feedback { background: #fee2e2; color: #dc2626; }
     .btn-full { flex: 100%; background: #f1f5f9; color: #334155; }
     
-    .status-msg { font-size: 13px; font-weight: 700; color: var(--primary); margin-top: 10px; text-align: center; }
+    .status-msg { font-size: 14px; font-weight: 800; color: var(--primary); margin-top: 10px; text-align: center; }
 
     /* 모달 */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
     .modal-content { background: #fff; width: 100%; max-width: 400px; padding: 24px; border-radius: 16px; }
     .modal-content h3 { margin: 0 0 16px; }
-    textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: 12px; resize: none; outline: none; margin-bottom: 16px; font-family: inherit; }
+    textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: 12px; resize: none; outline: none; margin-bottom: 16px; font-family: inherit; font-size: 16px; }
     .modal-btns { display: flex; gap: 10px; }
     .btn-submit { background: var(--primary); color: #fff; }
   </style>
@@ -83,12 +96,11 @@
       <div class="cat-btn" data-cat="말이">말이</div>
     </div>
 
-    <!-- 메뉴 검색 및 선택 드롭다운 -->
+    <!-- 메뉴 검색 (모바일 키보드 호환 커스텀 버전) -->
     <div class="dropdown-wrapper">
-      <label for="menu-search">메뉴 검색 및 선택</label>
+      <label for="menu-search">메뉴 타이핑 검색</label>
       <div class="search-box">
-        <input type="text" id="menu-search" list="menu-options" placeholder="메뉴명 검색..." oninput="renderCards()">
-        <datalist id="menu-options"></datalist>
+        <input type="text" id="menu-search" placeholder="메뉴명을 직접 입력하세요..." oninput="renderCards()">
         <button onclick="resetSearch()">전체 보기</button>
       </div>
     </div>
@@ -117,13 +129,13 @@
     let currentModalMenu = '';
 
     window.onload = async () => {
-      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold;">데이터를 불러오는 중입니다...⏳</p>';
+      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:20px;">데이터를 불러오는 중입니다...⏳</p>';
       try {
         const res = await fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' });
         allData = await res.json();
         updateCategory(currentCategory);
       } catch (err) {
-        document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red;">데이터 로딩 실패</p>';
+        document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red; font-size:20px;">데이터 로딩 실패</p>';
       }
     };
 
@@ -136,22 +148,10 @@
       });
     });
 
-    // 카테고리 업데이트 및 검색용 Datalist 생성
+    // 카테고리 업데이트
     function updateCategory(category) {
       currentCategory = category;
-      const datalist = document.getElementById('menu-options');
-      const filtered = allData.filter(m => m.category === category);
-      
-      // 검색창 옵션 목록 초기화 및 생성
-      datalist.innerHTML = '';
-      filtered.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item.name;
-        datalist.appendChild(opt);
-      });
-
-      // 탭을 바꿀 때 검색창을 비우고 전체 메뉴 렌더링
-      resetSearch();
+      resetSearch(); // 탭 변경 시 검색어 초기화 후 전체 렌더링
     }
 
     // 검색창 비우기 (전체보기)
@@ -160,7 +160,7 @@
       renderCards();
     }
 
-    // 카드 렌더링 (검색어 필터링 적용)
+    // 카드 렌더링 (실시간 타이핑 검색 기능 탑재)
     function renderCards() {
       const container = document.getElementById('menu-container');
       const searchTerm = document.getElementById('menu-search').value.trim().toLowerCase();
@@ -169,13 +169,13 @@
       // 현재 탭의 데이터 가져오기
       let renderData = allData.filter(m => m.category === currentCategory);
       
-      // 검색어가 있으면 부분 일치하는 메뉴만 필터링
+      // 검색어가 있으면 부분 일치하는 메뉴만 필터링 (글자 칠 때마다 실시간 작동)
       if (searchTerm !== "") {
         renderData = renderData.filter(m => m.name.toLowerCase().includes(searchTerm));
       }
 
       if (renderData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px;">검색된 메뉴가 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px; font-size:20px;">검색된 메뉴가 없습니다.</p>';
         return;
       }
 
@@ -183,12 +183,10 @@
         const card = document.createElement('div');
         card.className = 'menu-card';
         
-        // 사진이 있으면 이미지 표시, 없으면 안내 문구
         const imageHTML = item.imageUrl 
           ? `<img src="${item.imageUrl}" alt="${item.name}">` 
           : `<span class="img-placeholder">등록된 사진이 없습니다.</span>`;
 
-        // 사진이 있으면 등록 버튼 숨기고, 없으면 노출
         const buttonsHTML = item.imageUrl
           ? `<button class="btn btn-full" onclick="openModal('${item.name}')">✍️ 보완 요청하기</button>`
           : `<label class="btn btn-photo">
@@ -228,12 +226,10 @@
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
-          // 가장 짧은 면을 기준으로 정방형 사이즈 계산 (정중앙 크롭)
           const size = Math.min(img.width, img.height);
           const startX = (img.width - size) / 2;
           const startY = (img.height - size) / 2;
 
-          // 출력 해상도 800x800 고정
           canvas.width = 800;
           canvas.height = 800;
           ctx.drawImage(img, startX, startY, size, size, 0, 0, 800, 800);
