@@ -28,11 +28,13 @@
     .cat-btn { padding: 16px 10px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
     .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
 
-    /* 메뉴 선택 드롭다운 */
+    /* 검색 및 드롭다운 영역 */
     .dropdown-wrapper { margin-bottom: 24px; }
     .dropdown-wrapper label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
-    select { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 12px; outline: none; background: #fff; appearance: none; }
-    select:focus { border-color: var(--primary); }
+    .search-box { display: flex; gap: 8px; }
+    .search-box input { flex: 1; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 12px; outline: none; background: #fff; }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-box button { padding: 0 16px; border-radius: 12px; font-weight: 700; white-space: nowrap; border: none; background: #e2e8f0; color: #475569; cursor: pointer; }
 
     /* 카드 스타일 */
     .menu-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
@@ -81,12 +83,14 @@
       <div class="cat-btn" data-cat="말이">말이</div>
     </div>
 
-    <!-- 메뉴 선택 드롭다운 -->
+    <!-- 메뉴 검색 및 선택 드롭다운 -->
     <div class="dropdown-wrapper">
-      <label for="menu-select">메뉴 선택</label>
-      <select id="menu-select" onchange="renderCards()">
-        <option value="ALL">전체 보기</option>
-      </select>
+      <label for="menu-search">메뉴 검색 및 선택</label>
+      <div class="search-box">
+        <input type="text" id="menu-search" list="menu-options" placeholder="메뉴명 검색..." oninput="renderCards()">
+        <datalist id="menu-options"></datalist>
+        <button onclick="resetSearch()">전체 보기</button>
+      </div>
     </div>
 
     <!-- 메뉴 리스트 출력 영역 -->
@@ -132,36 +136,46 @@
       });
     });
 
-    // 카테고리 업데이트 및 드롭다운 생성
+    // 카테고리 업데이트 및 검색용 Datalist 생성
     function updateCategory(category) {
       currentCategory = category;
-      const select = document.getElementById('menu-select');
+      const datalist = document.getElementById('menu-options');
       const filtered = allData.filter(m => m.category === category);
       
-      select.innerHTML = '<option value="ALL">📋 전체 보기</option>';
+      // 검색창 옵션 목록 초기화 및 생성
+      datalist.innerHTML = '';
       filtered.forEach(item => {
         const opt = document.createElement('option');
         opt.value = item.name;
-        opt.innerText = item.name;
-        select.appendChild(opt);
+        datalist.appendChild(opt);
       });
 
+      // 탭을 바꿀 때 검색창을 비우고 전체 메뉴 렌더링
+      resetSearch();
+    }
+
+    // 검색창 비우기 (전체보기)
+    function resetSearch() {
+      document.getElementById('menu-search').value = '';
       renderCards();
     }
 
-    // 카드 렌더링
+    // 카드 렌더링 (검색어 필터링 적용)
     function renderCards() {
       const container = document.getElementById('menu-container');
-      const selectedMenu = document.getElementById('menu-select').value;
+      const searchTerm = document.getElementById('menu-search').value.trim().toLowerCase();
       container.innerHTML = '';
 
+      // 현재 탭의 데이터 가져오기
       let renderData = allData.filter(m => m.category === currentCategory);
-      if (selectedMenu !== "ALL") {
-        renderData = renderData.filter(m => m.name === selectedMenu);
+      
+      // 검색어가 있으면 부분 일치하는 메뉴만 필터링
+      if (searchTerm !== "") {
+        renderData = renderData.filter(m => m.name.toLowerCase().includes(searchTerm));
       }
 
       if (renderData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold;">등록된 메뉴가 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px;">검색된 메뉴가 없습니다.</p>';
         return;
       }
 
@@ -174,7 +188,7 @@
           ? `<img src="${item.imageUrl}" alt="${item.name}">` 
           : `<span class="img-placeholder">등록된 사진이 없습니다.</span>`;
 
-        // 사진이 있으면 등록 버튼 숨기고, 없으면 노출 (갤러리/카메라 모두 지원하도록 capture 속성 제거)
+        // 사진이 있으면 등록 버튼 숨기고, 없으면 노출
         const buttonsHTML = item.imageUrl
           ? `<button class="btn btn-full" onclick="openModal('${item.name}')">✍️ 보완 요청하기</button>`
           : `<label class="btn btn-photo">
@@ -270,12 +284,10 @@
 
         if(previewDiv) {
           if(base64Image && result.imageUrl) {
-            // 저장 성공 시 이미지 즉시 반영 및 등록 버튼 숨기기
             document.getElementById(`img-box-${menuName}`).innerHTML = `<img src="${result.imageUrl}">`;
             document.getElementById(`action-box-${menuName}`).innerHTML = `<button class="btn btn-full" onclick="openModal('${menuName}')">✍️ 보완 요청하기</button>`;
             previewDiv.innerText = "✅ 사진이 구글 드라이브에 저장되었습니다.";
             
-            // 데이터 배열 업데이트
             const target = allData.find(m => m.name === menuName);
             if(target) target.imageUrl = result.imageUrl;
           } else if (!base64Image) {
