@@ -89,7 +89,7 @@
 </head>
 <body>
 
-  <!-- ★ 1. 비밀번호 화면 -->
+  <!-- 1. 비밀번호 화면 -->
   <div id="password-overlay" class="fullscreen-overlay">
     <div class="pw-box">
       <h2>🔒 관리자 인증</h2>
@@ -98,7 +98,7 @@
     </div>
   </div>
 
-  <!-- ★ 2. 데이터 로딩 화면 (화면 터치 방지) -->
+  <!-- 2. 데이터 로딩 화면 (화면 터치 방지) -->
   <div id="loading-overlay" class="fullscreen-overlay hidden">
     <div class="loading-spinner">⏳</div>
     <div class="loading-text">데이터를 불러오는 중입니다</div>
@@ -159,7 +159,7 @@
     const dropdown = document.getElementById('categoryDropdown');
     const dropdownLabel = document.getElementById('dropdownLabel');
 
-    // ★ 1. 비밀번호 확인 로직
+    // 1. 비밀번호 확인 로직
     function checkPassword() {
       const pw = document.getElementById('pw-input').value;
       if (pw === "0000") {
@@ -171,10 +171,10 @@
       }
     }
 
-    // ★ 2. 데이터 로딩 로직 (전체화면 팝업 적용)
+    // 2. 데이터 로딩 로직
     async function loadData() {
       const loadingOverlay = document.getElementById('loading-overlay');
-      loadingOverlay.classList.remove('hidden'); // 로딩 화면 띄우기 (터치 방지)
+      loadingOverlay.classList.remove('hidden'); 
       
       try {
         const res = await fetch(SCRIPT_URL, { 
@@ -192,7 +192,7 @@
         }
         
         updateCategory(currentCategory);
-        loadingOverlay.classList.add('hidden'); // 로딩 성공 시 팝업 숨기기
+        loadingOverlay.classList.add('hidden'); 
       } catch (err) {
         loadingOverlay.innerHTML = '<div class="loading-text" style="color:#dc2626;">❌ 데이터 로딩 실패<br>다시 시도해주세요.</div>';
       }
@@ -212,8 +212,11 @@
       searchInput.value = '';
       suggestionsBox.classList.remove('active');
       
+      // 드롭다운 목록 생성 (오름차순 정렬 적용)
       dropdown.innerHTML = '<option value="ALL">전체보기</option>';
-      const categoryData = allData.filter(m => m.category === currentCategory);
+      const categoryData = allData.filter(m => m.category === currentCategory)
+                                  .sort((a, b) => a.name.localeCompare(b.name));
+                                  
       categoryData.forEach(item => {
         dropdown.innerHTML += `<option value="${item.name}">${item.name}</option>`;
       });
