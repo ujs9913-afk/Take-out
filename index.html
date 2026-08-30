@@ -53,7 +53,7 @@
     .img-box img { width: 100%; height: 100%; object-fit: cover; }
     .img-placeholder { color: #94a3b8; font-size: 14px; font-weight: 600; }
 
-    .recipe-details { background: #f8fafc; padding: 20px; border-radius: 8px; font-size: 45px; line-height: 1.4; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line; }
+    .recipe-details { background: #f8fafc; padding: 20px; border-radius: 8px; font-size: 25px; line-height: 1.4; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line; }
 
     /* 액션 버튼 */
     .actions { display: flex; gap: 10px; }
@@ -72,16 +72,43 @@
     textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: 8px; resize: none; outline: none; margin-bottom: 16px; font-family: inherit; font-size: 16px; }
     .modal-btns { display: flex; gap: 10px; }
     .btn-submit { background: var(--primary); color: #fff; }
+
+    /* 전체 화면 오버레이 (비밀번호 및 로딩창) */
+    .fullscreen-overlay { position: fixed; inset: 0; background: #fff; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    .fullscreen-overlay.hidden { display: none !important; }
+    
+    .pw-box { background: #f8fafc; padding: 30px; border-radius: 16px; border: 1px solid var(--border); text-align: center; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .pw-box h2 { margin-top: 0; color: var(--primary); margin-bottom: 20px; font-size: 24px; }
+    .pw-box input { width: 100%; padding: 14px; font-size: 20px; text-align: center; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 16px; outline: none; letter-spacing: 4px; }
+    .pw-box input:focus { border-color: var(--primary); }
+    
+    .loading-spinner { font-size: 50px; margin-bottom: 20px; animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    .loading-text { font-size: 20px; font-weight: bold; color: var(--text-main); text-align: center; line-height: 1.5; }
   </style>
 </head>
 <body>
 
+  <!-- ★ 1. 비밀번호 화면 -->
+  <div id="password-overlay" class="fullscreen-overlay">
+    <div class="pw-box">
+      <h2>🔒 관리자 인증</h2>
+      <input type="password" id="pw-input" placeholder="비밀번호" maxlength="4" inputmode="numeric">
+      <button class="btn btn-submit" onclick="checkPassword()">대시보드 입장</button>
+    </div>
+  </div>
+
+  <!-- ★ 2. 데이터 로딩 화면 (화면 터치 방지) -->
+  <div id="loading-overlay" class="fullscreen-overlay hidden">
+    <div class="loading-spinner">⏳</div>
+    <div class="loading-text">데이터를 불러오는 중입니다</div>
+  </div>
+
   <header>
-    <h1>현장 퀄리티 관리</h1>
+    <h1>수원지역 수제 테이크아웃</h1>
   </header>
 
   <div class="container">
-    <!-- 타입별 탭 -->
     <div class="category-grid" id="category-tabs">
       <div class="cat-btn active" data-cat="샐러드">샐러드</div>
       <div class="cat-btn" data-cat="델리">델리</div>
@@ -91,16 +118,13 @@
       <div class="cat-btn" data-cat="말이">말이</div>
     </div>
 
-    <!-- 검색 및 드롭다운 컨트롤 패널 -->
     <div class="control-panel">
-      <!-- 스마트 자동완성 검색창 -->
       <div class="search-wrapper">
         <label>🔍 메뉴명 자동완성 검색</label>
         <input type="text" id="searchInput" placeholder="메뉴명을 입력하세요..." autocomplete="off">
         <div id="suggestions" class="suggestions"></div>
       </div>
       
-      <!-- 타입별 전체보기 드롭다운 -->
       <div>
         <label id="dropdownLabel">📋 샐러드 메뉴 리스트</label>
         <select id="categoryDropdown" class="dropdown-select">
@@ -109,11 +133,9 @@
       </div>
     </div>
 
-    <!-- 메뉴 카드 출력 영역 -->
     <div id="menu-container"></div>
   </div>
 
-  <!-- 보완 요청 모달 -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content">
       <h3 id="modal-title">요청사항 작성</h3>
@@ -137,8 +159,22 @@
     const dropdown = document.getElementById('categoryDropdown');
     const dropdownLabel = document.getElementById('dropdownLabel');
 
-    window.onload = async () => {
-      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:18px;">데이터를 불러오는 중입니다...⏳</p>';
+    // ★ 1. 비밀번호 확인 로직
+    function checkPassword() {
+      const pw = document.getElementById('pw-input').value;
+      if (pw === "0000") {
+        document.getElementById('password-overlay').classList.add('hidden');
+        loadData(); // 비밀번호 일치 시 데이터 로딩 시작
+      } else {
+        alert("비밀번호가 일치하지 않습니다.");
+        document.getElementById('pw-input').value = "";
+      }
+    }
+
+    // ★ 2. 데이터 로딩 로직 (전체화면 팝업 적용)
+    async function loadData() {
+      const loadingOverlay = document.getElementById('loading-overlay');
+      loadingOverlay.classList.remove('hidden'); // 로딩 화면 띄우기 (터치 방지)
       
       try {
         const res = await fetch(SCRIPT_URL, { 
@@ -156,12 +192,12 @@
         }
         
         updateCategory(currentCategory);
+        loadingOverlay.classList.add('hidden'); // 로딩 성공 시 팝업 숨기기
       } catch (err) {
-        document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red; font-size:18px;">데이터 로딩 실패</p>';
+        loadingOverlay.innerHTML = '<div class="loading-text" style="color:#dc2626;">❌ 데이터 로딩 실패<br>다시 시도해주세요.</div>';
       }
-    };
+    }
 
-    // 1. 카테고리 탭 클릭 이벤트
     document.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -170,14 +206,12 @@
       });
     });
 
-    // 2. 카테고리 변경 시 데이터 갱신
     function updateCategory(category) {
       currentCategory = category;
       dropdownLabel.innerText = `📋 ${category} 메뉴 리스트`;
       searchInput.value = '';
       suggestionsBox.classList.remove('active');
       
-      // 드롭다운 목록 생성
       dropdown.innerHTML = '<option value="ALL">전체보기</option>';
       const categoryData = allData.filter(m => m.category === currentCategory);
       categoryData.forEach(item => {
@@ -187,13 +221,11 @@
       renderCards("ALL");
     }
 
-    // 3. 드롭다운 선택 시 이벤트
     dropdown.addEventListener('change', (e) => {
-      searchInput.value = ''; // 드롭다운 사용 시 검색어 초기화
+      searchInput.value = ''; 
       renderCards(e.target.value);
     });
 
-    // 4. 검색창 입력 시 실시간 자동완성(추천) 이벤트
     searchInput.addEventListener('input', (e) => {
       const val = e.target.value.trim().toLowerCase();
       suggestionsBox.innerHTML = '';
@@ -205,7 +237,6 @@
         return;
       }
 
-      // 현재 선택된 카테고리 내에서 검색
       const matches = allData.filter(m => m.category === currentCategory && m.name.toLowerCase().includes(val));
       
       if (matches.length > 0) {
@@ -216,7 +247,7 @@
           div.onclick = () => {
             searchInput.value = match.name;
             suggestionsBox.classList.remove('active');
-            dropdown.value = match.name; // 드롭다운 동기화
+            dropdown.value = match.name; 
             renderCards(match.name);
           };
           suggestionsBox.appendChild(div);
@@ -225,19 +256,14 @@
       } else {
         suggestionsBox.classList.remove('active');
       }
-
-      // 타이핑 중에도 화면에 필터링 반영 원할 시 아래 주석 해제
-      // renderCards(val, true);
     });
 
-    // 바탕 클릭 시 자동완성 창 닫기
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.search-wrapper')) {
         suggestionsBox.classList.remove('active');
       }
     });
 
-    // 5. 카드 렌더링 함수
     function renderCards(filterValue, isSearchText = false) {
       const container = document.getElementById('menu-container');
       container.innerHTML = '';
@@ -288,7 +314,6 @@
       });
     }
 
-    // 6. 1:1 사진 업로드 및 압축 로직
     function handleImageUpload(event, menuName) {
       const file = event.target.files[0];
       if (!file) return;
@@ -320,7 +345,6 @@
       reader.readAsDataURL(file);
     }
 
-    // 7. 모달 제어 및 데이터 전송
     function openModal(menuName) {
       currentModalMenu = menuName;
       document.getElementById('modal-title').innerText = menuName + " 요청사항";
