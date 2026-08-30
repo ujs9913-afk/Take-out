@@ -12,7 +12,7 @@
       --text-main: #1e293b;
       --text-sub: #64748b;
       --border: #e2e8f0;
-      --radius: 16px;
+      --radius: 12px;
     }
 
     * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
@@ -23,44 +23,41 @@
 
     .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
-    /* 전체보기 탭 추가에 따른 유연한 그리드 레이아웃 변경 */
-    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; justify-content: center; }
-    .cat-btn { flex: 1 1 calc(25% - 8px); min-width: 75px; padding: 14px 5px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
+    /* 타입별 카테고리 탭 */
+    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; justify-content: center; }
+    .cat-btn { flex: 1 1 calc(33% - 8px); min-width: 75px; padding: 14px 5px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
     .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
 
-    /* 커스텀 스마트 검색창 */
-    .dropdown-wrapper { margin-bottom: 24px; }
-    .dropdown-wrapper label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
-    .search-box { display: flex; gap: 8px; }
-    .search-box input { flex: 1; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 12px; outline: none; background: #fff; }
-    .search-box input:focus { border-color: var(--primary); }
-    .search-box button { padding: 0 16px; border-radius: 12px; font-weight: 700; white-space: nowrap; border: none; background: #e2e8f0; color: #475569; cursor: pointer; }
+    /* 검색 및 드롭다운 컨트롤 패널 */
+    .control-panel { background: #fff; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .control-panel label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
+    
+    .search-wrapper { position: relative; margin-bottom: 12px; }
+    .search-wrapper input { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 8px; outline: none; transition: border-color 0.2s; }
+    .search-wrapper input:focus { border-color: var(--primary); }
+    
+    /* 검색 자동완성 추천창 */
+    .suggestions { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--primary); border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .suggestions.active { display: block; }
+    .suggestion-item { padding: 12px 16px; font-size: 15px; font-weight: 600; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
+    .suggestion-item:hover { background-color: #eff6ff; color: var(--primary); }
 
-    /* 카드 스타일 */
+    .dropdown-select { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 8px; outline: none; background: #f8fafc; appearance: none; cursor: pointer; }
+    .dropdown-select:focus { border-color: var(--primary); }
+
+    /* 메뉴 카드 스타일 */
     .menu-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
     .menu-title { font-size: 32px; font-weight: 900; margin: 0 0 16px 0; color: var(--primary); }
     
-    /* 1:1 사진 영역 */
-    .img-box { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; background: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+    .img-box { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; background: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
     .img-box img { width: 100%; height: 100%; object-fit: cover; }
     .img-placeholder { color: #94a3b8; font-size: 14px; font-weight: 600; }
 
-    /* 45px로 키운 정보 텍스트 */
-    .recipe-details { 
-      background: #f8fafc; 
-      padding: 20px; 
-      border-radius: 12px; 
-      font-size: 45px; 
-      line-height: 1.4; 
-      color: #334155; 
-      font-weight: 800; 
-      margin-bottom: 16px; 
-      white-space: pre-line; 
-    }
+    .recipe-details { background: #f8fafc; padding: 20px; border-radius: 8px; font-size: 45px; line-height: 1.4; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line; }
 
-    /* 버튼 영역 */
+    /* 액션 버튼 */
     .actions { display: flex; gap: 10px; }
-    .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; }
+    .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; }
     .btn-photo { background: #e2e8f0; color: #475569; display: block; }
     .btn-feedback { background: #fee2e2; color: #dc2626; }
     .btn-full { flex: 100%; background: #f1f5f9; color: #334155; }
@@ -71,8 +68,8 @@
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
     .modal-content { background: #fff; width: 100%; max-width: 400px; padding: 24px; border-radius: 16px; }
-    .modal-content h3 { margin: 0 0 16px; }
-    textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: 12px; resize: none; outline: none; margin-bottom: 16px; font-family: inherit; font-size: 16px; }
+    .modal-content h3 { margin: 0 0 16px; font-size: 20px; }
+    textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: 8px; resize: none; outline: none; margin-bottom: 16px; font-family: inherit; font-size: 16px; }
     .modal-btns { display: flex; gap: 10px; }
     .btn-submit { background: var(--primary); color: #fff; }
   </style>
@@ -84,10 +81,9 @@
   </header>
 
   <div class="container">
-    <!-- 전체보기 탭 추가 -->
+    <!-- 타입별 탭 -->
     <div class="category-grid" id="category-tabs">
-      <div class="cat-btn active" data-cat="전체">전체보기</div>
-      <div class="cat-btn" data-cat="샐러드">샐러드</div>
+      <div class="cat-btn active" data-cat="샐러드">샐러드</div>
       <div class="cat-btn" data-cat="델리">델리</div>
       <div class="cat-btn" data-cat="요거트">요거트</div>
       <div class="cat-btn" data-cat="과일">과일</div>
@@ -95,15 +91,25 @@
       <div class="cat-btn" data-cat="말이">말이</div>
     </div>
 
-    <!-- 메뉴 검색 -->
-    <div class="dropdown-wrapper">
-      <label for="menu-search">메뉴 타이핑 검색</label>
-      <div class="search-box">
-        <input type="text" id="menu-search" placeholder="메뉴명을 직접 입력하세요..." oninput="renderCards()">
-        <button onclick="resetSearch()">입력 초기화</button>
+    <!-- 검색 및 드롭다운 컨트롤 패널 -->
+    <div class="control-panel">
+      <!-- 스마트 자동완성 검색창 -->
+      <div class="search-wrapper">
+        <label>🔍 메뉴명 자동완성 검색</label>
+        <input type="text" id="searchInput" placeholder="메뉴명을 입력하세요..." autocomplete="off">
+        <div id="suggestions" class="suggestions"></div>
+      </div>
+      
+      <!-- 타입별 전체보기 드롭다운 -->
+      <div>
+        <label id="dropdownLabel">📋 샐러드 메뉴 리스트</label>
+        <select id="categoryDropdown" class="dropdown-select">
+          <option value="ALL">전체보기</option>
+        </select>
       </div>
     </div>
 
+    <!-- 메뉴 카드 출력 영역 -->
     <div id="menu-container"></div>
   </div>
 
@@ -123,11 +129,16 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5-c2tli_m9nGzhmZUapV2KrvkafC6-qhQvtRs4KU3qqj5JGG6NpxIXdy4IyYSELcU/exec'; 
 
     let allData = [];
-    let currentCategory = '전체'; // 기본 화면을 전체보기로 설정
+    let currentCategory = '샐러드';
     let currentModalMenu = '';
 
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsBox = document.getElementById('suggestions');
+    const dropdown = document.getElementById('categoryDropdown');
+    const dropdownLabel = document.getElementById('dropdownLabel');
+
     window.onload = async () => {
-      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:20px;">데이터를 빠르게 불러오는 중입니다...⏳</p>';
+      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:18px;">데이터를 불러오는 중입니다...⏳</p>';
       
       try {
         const res = await fetch(SCRIPT_URL, { 
@@ -140,25 +151,17 @@
         
         if (Array.isArray(rawData)) {
             allData = rawData;
-            updateCategory(currentCategory);
         } else if (rawData.data && Array.isArray(rawData.data)) {
             allData = rawData.data;
-            updateCategory(currentCategory);
-        } else {
-            throw new Error("데이터 형식이 맞지 않습니다.");
         }
+        
+        updateCategory(currentCategory);
       } catch (err) {
-        try {
-            const getRes = await fetch(SCRIPT_URL);
-            allData = await getRes.json();
-            updateCategory(currentCategory);
-        } catch (e2) {
-            document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red; font-size:18px;">데이터 로딩 실패<br>구글 시트 연동을 확인해주세요.</p>';
-        }
+        document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red; font-size:18px;">데이터 로딩 실패</p>';
       }
     };
 
-    // 터치 충돌 방지를 위해 currentTarget 적용
+    // 1. 카테고리 탭 클릭 이벤트
     document.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -167,34 +170,90 @@
       });
     });
 
+    // 2. 카테고리 변경 시 데이터 갱신
     function updateCategory(category) {
       currentCategory = category;
-      resetSearch(); 
+      dropdownLabel.innerText = `📋 ${category} 메뉴 리스트`;
+      searchInput.value = '';
+      suggestionsBox.classList.remove('active');
+      
+      // 드롭다운 목록 생성
+      dropdown.innerHTML = '<option value="ALL">전체보기</option>';
+      const categoryData = allData.filter(m => m.category === currentCategory);
+      categoryData.forEach(item => {
+        dropdown.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+      });
+
+      renderCards("ALL");
     }
 
-    function resetSearch() {
-      document.getElementById('menu-search').value = '';
-      renderCards();
-    }
+    // 3. 드롭다운 선택 시 이벤트
+    dropdown.addEventListener('change', (e) => {
+      searchInput.value = ''; // 드롭다운 사용 시 검색어 초기화
+      renderCards(e.target.value);
+    });
 
-    function renderCards() {
+    // 4. 검색창 입력 시 실시간 자동완성(추천) 이벤트
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      suggestionsBox.innerHTML = '';
+      
+      if (!val) {
+        suggestionsBox.classList.remove('active');
+        dropdown.value = "ALL";
+        renderCards("ALL");
+        return;
+      }
+
+      // 현재 선택된 카테고리 내에서 검색
+      const matches = allData.filter(m => m.category === currentCategory && m.name.toLowerCase().includes(val));
+      
+      if (matches.length > 0) {
+        matches.forEach(match => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.innerText = match.name;
+          div.onclick = () => {
+            searchInput.value = match.name;
+            suggestionsBox.classList.remove('active');
+            dropdown.value = match.name; // 드롭다운 동기화
+            renderCards(match.name);
+          };
+          suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.classList.add('active');
+      } else {
+        suggestionsBox.classList.remove('active');
+      }
+
+      // 타이핑 중에도 화면에 필터링 반영 원할 시 아래 주석 해제
+      // renderCards(val, true);
+    });
+
+    // 바탕 클릭 시 자동완성 창 닫기
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrapper')) {
+        suggestionsBox.classList.remove('active');
+      }
+    });
+
+    // 5. 카드 렌더링 함수
+    function renderCards(filterValue, isSearchText = false) {
       const container = document.getElementById('menu-container');
-      const searchTerm = document.getElementById('menu-search').value.trim().toLowerCase();
       container.innerHTML = '';
 
-      let renderData = allData;
-
-      // '전체' 탭이 아닐 경우에만 해당 카테고리로 필터링 (공백 무시 trim 적용)
-      if (currentCategory !== '전체') {
-        renderData = renderData.filter(m => m.category && m.category.trim() === currentCategory);
-      }
+      let renderData = allData.filter(m => m.category === currentCategory);
       
-      if (searchTerm !== "") {
-        renderData = renderData.filter(m => m.name.toLowerCase().includes(searchTerm));
+      if (filterValue !== "ALL") {
+        if (isSearchText) {
+          renderData = renderData.filter(m => m.name.toLowerCase().includes(filterValue.toLowerCase()));
+        } else {
+          renderData = renderData.filter(m => m.name === filterValue);
+        }
       }
 
       if (renderData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px; font-size:20px;">메뉴가 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px; font-size:18px;">메뉴가 없습니다.</p>';
         return;
       }
 
@@ -229,6 +288,7 @@
       });
     }
 
+    // 6. 1:1 사진 업로드 및 압축 로직
     function handleImageUpload(event, menuName) {
       const file = event.target.files[0];
       if (!file) return;
@@ -260,6 +320,7 @@
       reader.readAsDataURL(file);
     }
 
+    // 7. 모달 제어 및 데이터 전송
     function openModal(menuName) {
       currentModalMenu = menuName;
       document.getElementById('modal-title').innerText = menuName + " 요청사항";
