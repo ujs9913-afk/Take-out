@@ -23,9 +23,9 @@
 
     .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
-    /* 큼직한 시트 선택 탭 */
-    .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
-    .cat-btn { padding: 16px 10px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
+    /* 전체보기 탭 추가에 따른 유연한 그리드 레이아웃 변경 */
+    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; justify-content: center; }
+    .cat-btn { flex: 1 1 calc(25% - 8px); min-width: 75px; padding: 14px 5px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
     .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
 
     /* 커스텀 스마트 검색창 */
@@ -84,8 +84,10 @@
   </header>
 
   <div class="container">
+    <!-- 전체보기 탭 추가 -->
     <div class="category-grid" id="category-tabs">
-      <div class="cat-btn active" data-cat="샐러드">샐러드</div>
+      <div class="cat-btn active" data-cat="전체">전체보기</div>
+      <div class="cat-btn" data-cat="샐러드">샐러드</div>
       <div class="cat-btn" data-cat="델리">델리</div>
       <div class="cat-btn" data-cat="요거트">요거트</div>
       <div class="cat-btn" data-cat="과일">과일</div>
@@ -98,7 +100,7 @@
       <label for="menu-search">메뉴 타이핑 검색</label>
       <div class="search-box">
         <input type="text" id="menu-search" placeholder="메뉴명을 직접 입력하세요..." oninput="renderCards()">
-        <button onclick="resetSearch()">전체 보기</button>
+        <button onclick="resetSearch()">입력 초기화</button>
       </div>
     </div>
 
@@ -121,23 +123,21 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5-c2tli_m9nGzhmZUapV2KrvkafC6-qhQvtRs4KU3qqj5JGG6NpxIXdy4IyYSELcU/exec'; 
 
     let allData = [];
-    let currentCategory = '샐러드';
+    let currentCategory = '전체'; // 기본 화면을 전체보기로 설정
     let currentModalMenu = '';
 
     window.onload = async () => {
       document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:20px;">데이터를 빠르게 불러오는 중입니다...⏳</p>';
       
       try {
-        // ★ 에러 원인 해결: 통신 방식을 텍스트(text/plain)로 우회 요청하여 데이터 차단 방지
         const res = await fetch(SCRIPT_URL, { 
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: "getData" }) // 앱스 스크립트에게 데이터만 달라고 요청
+            body: JSON.stringify({ action: "getData" })
         });
         
         const rawData = await res.json();
         
-        // 데이터가 배열(리스트) 형태가 아니라면 에러 처리
         if (Array.isArray(rawData)) {
             allData = rawData;
             updateCategory(currentCategory);
@@ -148,8 +148,6 @@
             throw new Error("데이터 형식이 맞지 않습니다.");
         }
       } catch (err) {
-        console.error("데이터 로딩 에러:", err);
-        // 에러 발생 시 fallback(기존 GET 방식 재시도)
         try {
             const getRes = await fetch(SCRIPT_URL);
             allData = await getRes.json();
@@ -159,6 +157,15 @@
         }
       }
     };
+
+    // 터치 충돌 방지를 위해 currentTarget 적용
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        updateCategory(e.currentTarget.dataset.cat);
+      });
+    });
 
     function updateCategory(category) {
       currentCategory = category;
@@ -175,14 +182,19 @@
       const searchTerm = document.getElementById('menu-search').value.trim().toLowerCase();
       container.innerHTML = '';
 
-      let renderData = allData.filter(m => m.category === currentCategory);
+      let renderData = allData;
+
+      // '전체' 탭이 아닐 경우에만 해당 카테고리로 필터링 (공백 무시 trim 적용)
+      if (currentCategory !== '전체') {
+        renderData = renderData.filter(m => m.category && m.category.trim() === currentCategory);
+      }
       
       if (searchTerm !== "") {
         renderData = renderData.filter(m => m.name.toLowerCase().includes(searchTerm));
       }
 
       if (renderData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px; font-size:20px;">검색된 메뉴가 없습니다.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px; font-size:20px;">메뉴가 없습니다.</p>';
         return;
       }
 
