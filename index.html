@@ -38,8 +38,6 @@
 
     /* 카드 스타일 */
     .menu-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
-    
-    /* ★ 제목 글자 크기 조정 */
     .menu-title { font-size: 32px; font-weight: 900; margin: 0 0 16px 0; color: var(--primary); }
     
     /* 1:1 사진 영역 */
@@ -47,7 +45,7 @@
     .img-box img { width: 100%; height: 100%; object-fit: cover; }
     .img-placeholder { color: #94a3b8; font-size: 14px; font-weight: 600; }
 
-    /* ★ 내용 글자 크기 3배(45px) 확대 적용 */
+    /* 45px로 키운 정보 텍스트 */
     .recipe-details { 
       background: #f8fafc; 
       padding: 20px; 
@@ -82,11 +80,10 @@
 <body>
 
   <header>
-    <h1>수원지역 Take-Out 인당량 관리</h1>
+    <h1>현장 퀄리티 관리</h1>
   </header>
 
   <div class="container">
-    <!-- 시트(카테고리) 탭 -->
     <div class="category-grid" id="category-tabs">
       <div class="cat-btn active" data-cat="샐러드">샐러드</div>
       <div class="cat-btn" data-cat="델리">델리</div>
@@ -96,7 +93,7 @@
       <div class="cat-btn" data-cat="말이">말이</div>
     </div>
 
-    <!-- 메뉴 검색 (모바일 키보드 호환 커스텀 버전) -->
+    <!-- 메뉴 검색 -->
     <div class="dropdown-wrapper">
       <label for="menu-search">메뉴 타이핑 검색</label>
       <div class="search-box">
@@ -105,7 +102,6 @@
       </div>
     </div>
 
-    <!-- 메뉴 리스트 출력 영역 -->
     <div id="menu-container"></div>
   </div>
 
@@ -129,47 +125,58 @@
     let currentModalMenu = '';
 
     window.onload = async () => {
-      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:20px;">데이터를 불러오는 중입니다...⏳</p>';
+      document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px; font-weight:bold; font-size:20px;">데이터를 빠르게 불러오는 중입니다...⏳</p>';
+      
       try {
-        const res = await fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' });
-        allData = await res.json();
-        updateCategory(currentCategory);
+        // ★ 에러 원인 해결: 통신 방식을 텍스트(text/plain)로 우회 요청하여 데이터 차단 방지
+        const res = await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: "getData" }) // 앱스 스크립트에게 데이터만 달라고 요청
+        });
+        
+        const rawData = await res.json();
+        
+        // 데이터가 배열(리스트) 형태가 아니라면 에러 처리
+        if (Array.isArray(rawData)) {
+            allData = rawData;
+            updateCategory(currentCategory);
+        } else if (rawData.data && Array.isArray(rawData.data)) {
+            allData = rawData.data;
+            updateCategory(currentCategory);
+        } else {
+            throw new Error("데이터 형식이 맞지 않습니다.");
+        }
       } catch (err) {
-        document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red; font-size:20px;">데이터 로딩 실패</p>';
+        console.error("데이터 로딩 에러:", err);
+        // 에러 발생 시 fallback(기존 GET 방식 재시도)
+        try {
+            const getRes = await fetch(SCRIPT_URL);
+            allData = await getRes.json();
+            updateCategory(currentCategory);
+        } catch (e2) {
+            document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color:red; font-size:18px;">데이터 로딩 실패<br>구글 시트 연동을 확인해주세요.</p>';
+        }
       }
     };
 
-    // 탭 클릭 이벤트
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        updateCategory(e.target.dataset.cat);
-      });
-    });
-
-    // 카테고리 업데이트
     function updateCategory(category) {
       currentCategory = category;
-      resetSearch(); // 탭 변경 시 검색어 초기화 후 전체 렌더링
+      resetSearch(); 
     }
 
-    // 검색창 비우기 (전체보기)
     function resetSearch() {
       document.getElementById('menu-search').value = '';
       renderCards();
     }
 
-    // 카드 렌더링 (실시간 타이핑 검색 기능 탑재)
     function renderCards() {
       const container = document.getElementById('menu-container');
       const searchTerm = document.getElementById('menu-search').value.trim().toLowerCase();
       container.innerHTML = '';
 
-      // 현재 탭의 데이터 가져오기
       let renderData = allData.filter(m => m.category === currentCategory);
       
-      // 검색어가 있으면 부분 일치하는 메뉴만 필터링 (글자 칠 때마다 실시간 작동)
       if (searchTerm !== "") {
         renderData = renderData.filter(m => m.name.toLowerCase().includes(searchTerm));
       }
@@ -210,7 +217,6 @@
       });
     }
 
-    // 1:1 자동 크롭 및 압축 전송
     function handleImageUpload(event, menuName) {
       const file = event.target.files[0];
       if (!file) return;
