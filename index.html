@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>수원 수제 테이크아웃 대시보드</title>
   <style>
-    /* 트렌디한 모바일 앱 스타일 변수 설정 */
     :root {
       --primary: #4F46E5;
       --primary-hover: #4338CA;
@@ -23,17 +22,14 @@
     * { box-sizing: border-box; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { margin: 0; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
-    /* 상단 헤더 */
     header { background: var(--card-bg); padding: 18px 20px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     header h1 { margin: 0; font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
 
     .container { padding: 20px; max-width: 600px; margin: 0 auto; padding-bottom: 40px; }
 
-    /* 카테고리 탭 3개씩 2줄 (Grid 레이아웃) */
     .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .cat-btn { padding: 14px 5px; background: var(--card-bg); border: 1.5px solid var(--border-color); border-radius: 16px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
     
-    /* ★ 수정: 활성화된 탭(말이 등) 그라데이션 및 네온 그림자 효과 */
     .cat-btn.active { 
       background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); 
       color: #fff; 
@@ -42,7 +38,6 @@
       transform: translateY(-2px);
     }
 
-    /* 통합 컨트롤 패널 */
     .control-panel { background: var(--card-bg); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(226, 232, 240, 0.8); }
     .control-panel label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
     
@@ -58,40 +53,44 @@
 
     .dropdown-select { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; appearance: none; cursor: pointer; }
 
-    /* 메뉴 카드 UI */
     .menu-card { background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); transition: transform 0.2s ease; }
     .menu-card:active { transform: scale(0.98); }
     
     .menu-title { font-size: 24px; font-weight: 800; margin: 0; padding: 22px 22px 16px; color: var(--text-main); letter-spacing: -0.5px; }
 
-    .img-box { width: 100%; aspect-ratio: 1 / 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--border-color); border-top: 1px solid var(--border-color); }
+    /* ★ 빈 사진 영역 4:3 비율로 꽉 채우기 */
+    .img-box { width: 100%; aspect-ratio: 4 / 3; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--border-color); border-top: 1px solid var(--border-color); }
     .img-box img { width: 100%; height: 100%; object-fit: contain; }
-    .img-placeholder { color: #94A3B8; font-size: 15px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .img-placeholder::before { content: '📷'; font-size: 32px; opacity: 0.5; }
+    .img-placeholder { color: #94A3B8; font-size: 16px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; height: 100%; }
+    .img-placeholder::before { content: '📷'; font-size: 44px; opacity: 0.4; }
 
     .card-content { padding: 20px 22px 22px; }
     .recipe-details { background: #F1F5F9; padding: 20px; border-radius: var(--radius-md); font-size: 18px; line-height: 1.6; color: #334155; font-weight: 700; margin-bottom: 20px; white-space: pre-line; border: 1px solid #E2E8F0; }
     .feedback-display { background: #FFFBEB; border: 1px solid #FDE68A; padding: 16px; border-radius: var(--radius-md); font-size: 15px; line-height: 1.5; color: #92400E; font-weight: 700; margin-bottom: 20px; white-space: pre-line; display: flex; align-items: flex-start; gap: 8px; }
 
-    /* 버튼 스타일링 */
+    /* ★ 액션 버튼 그라데이션 및 네온 섀도우 개선 */
     .actions { display: flex; gap: 12px; }
-    .btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius-md); font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
-    .btn-photo { background: #E2E8F0; color: #475569; }
-    .btn-photo:active { background: #CBD5E1; }
-    .btn-feedback { background: #FEE2E2; color: #DC2626; }
-    .btn-feedback:active { background: #FCA5A5; }
-    
-    /* ★ 수정: 보완 요청하기 버튼 그라데이션 및 네온 그림자 효과 */
-    .btn-full { 
-      flex: 100%; 
+    .btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius-md); font-size: 16px; font-weight: 800; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
+    .btn:active { transform: scale(0.96); }
+
+    /* 딥 인디고 그라데이션 & 네온 섀도우 (보완 요청) */
+    .btn-feedback, .btn-full { 
       background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); 
       color: #FFF; 
       box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); 
-      border: none;
     }
-    .btn-full:active { 
-      transform: scale(0.98); 
+    .btn-feedback:active, .btn-full:active { 
       box-shadow: 0 2px 8px rgba(49, 46, 129, 0.3); 
+    }
+
+    /* 시안 민트 그라데이션 & 네온 섀도우 (사진 업로드) */
+    .btn-photo { 
+      background: linear-gradient(135deg, #2DD4BF 0%, #0F766E 100%); 
+      color: #FFF; 
+      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.3); 
+    }
+    .btn-photo:active { 
+      box-shadow: 0 2px 8px rgba(15, 118, 110, 0.2); 
     }
     
     .status-msg { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 14px; text-align: center; }
@@ -106,7 +105,7 @@
     textarea { width: 100%; height: 120px; padding: 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); resize: none; outline: none; margin-bottom: 20px; font-family: inherit; font-size: 16px; font-weight: 500; background: #F8FAFC; transition: border-color 0.2s; }
     textarea:focus { border-color: var(--primary); background: #FFF; }
     .modal-btns { display: flex; gap: 12px; }
-    .btn-submit { background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #fff; border: none; }
+    .btn-submit { background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #fff; border: none; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); }
 
     /* 전체 화면 오버레이 */
     .fullscreen-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(10px); }
@@ -175,8 +174,8 @@
       <h3 id="modal-title">보완 요청 작성</h3>
       <textarea id="feedback-text" placeholder="개선이 필요한 부분을 상세히 적어주세요."></textarea>
       <div class="modal-btns">
-        <button class="btn btn-photo" onclick="closeModal()">취소</button>
-        <button class="btn btn-submit" onclick="submitFeedback()">🚀 시트로 전송</button>
+        <button class="btn btn-photo" style="background:#F0F0F5; color:#1C1C1E; box-shadow:none;" onclick="closeModal()">취소</button>
+        <button class="btn btn-submit" style="flex:1;" onclick="submitFeedback()">🚀 시트로 전송</button>
       </div>
     </div>
   </div>
