@@ -49,11 +49,15 @@
     .menu-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
     .menu-title { font-size: 32px; font-weight: 900; margin: 0 0 16px 0; color: var(--primary); }
     
+    /* 사진 비율 유지 영역 */
     .img-box { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; background: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
-    .img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .img-box img { width: 100%; height: 100%; object-fit: contain; }
     .img-placeholder { color: #94a3b8; font-size: 14px; font-weight: 600; }
 
     .recipe-details { background: #f8fafc; padding: 20px; border-radius: 8px; font-size: 25px; line-height: 1.4; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line; }
+
+    /* ★ 추가: 피드백(보완 요청사항) 표시 영역 스타일 */
+    .feedback-display { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; font-size: 16px; line-height: 1.5; color: #92400e; font-weight: 600; margin-bottom: 16px; white-space: pre-line; }
 
     /* 액션 버튼 */
     .actions { display: flex; gap: 10px; }
@@ -89,7 +93,6 @@
 </head>
 <body>
 
-  <!-- 1. 비밀번호 화면 -->
   <div id="password-overlay" class="fullscreen-overlay">
     <div class="pw-box">
       <h2>🔒 관리자 인증</h2>
@@ -98,7 +101,6 @@
     </div>
   </div>
 
-  <!-- 2. 데이터 로딩 화면 (화면 터치 방지) -->
   <div id="loading-overlay" class="fullscreen-overlay hidden">
     <div class="loading-spinner">⏳</div>
     <div class="loading-text">데이터를 불러오는 중입니다</div>
@@ -159,19 +161,26 @@
     const dropdown = document.getElementById('categoryDropdown');
     const dropdownLabel = document.getElementById('dropdownLabel');
 
-    // 1. 비밀번호 확인 로직
     function checkPassword() {
       const pw = document.getElementById('pw-input').value;
       if (pw === "0000") {
         document.getElementById('password-overlay').classList.add('hidden');
-        loadData(); // 비밀번호 일치 시 데이터 로딩 시작
+        
+        // ★ 방문 기록 몰래 전송 로직
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: "recordVisit" })
+        }).catch(err => console.log("방문 기록 전송 실패", err));
+
+        loadData();
       } else {
         alert("비밀번호가 일치하지 않습니다.");
         document.getElementById('pw-input').value = "";
       }
     }
 
-    // 2. 데이터 로딩 로직
     async function loadData() {
       const loadingOverlay = document.getElementById('loading-overlay');
       loadingOverlay.classList.remove('hidden'); 
@@ -212,7 +221,6 @@
       searchInput.value = '';
       suggestionsBox.classList.remove('active');
       
-      // 드롭다운 목록 생성 (오름차순 정렬 적용)
       dropdown.innerHTML = '<option value="ALL">전체보기</option>';
       const categoryData = allData.filter(m => m.category === currentCategory)
                                   .sort((a, b) => a.name.localeCompare(b.name));
@@ -294,10 +302,14 @@
           ? `<img src="${item.imageUrl}" alt="${item.name}">` 
           : `<span class="img-placeholder">등록된 사진이 없습니다.</span>`;
 
+        const feedbackHTML = item.feedback && item.feedback.trim() !== ""
+          ? `<div class="feedback-display" id="feedback-display-${item.name}">💬 ${item.feedback}</div>`
+          : `<div class="feedback-display" id="feedback-display-${item.name}" style="display:none;"></div>`;
+
         const buttonsHTML = item.imageUrl
           ? `<button class="btn btn-full" onclick="openModal('${item.name}')">✍️ 보완 요청하기</button>`
           : `<label class="btn btn-photo">
-               📸 사진 등록 (1:1 자동)
+               📸 사진 등록
                <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, '${item.name}')">
              </label>
              <button class="btn btn-feedback" onclick="openModal('${item.name}')">✍️ 보완 요청</button>`;
@@ -307,6 +319,7 @@
           <div class="img-box" id="img-box-${item.name}">
             ${imageHTML}
           </div>
+          ${feedbackHTML}
           <div class="recipe-details">${item.details}</div>
           <div class="actions" id="action-box-${item.name}">
             ${buttonsHTML}
@@ -323,7 +336,7 @@
 
       const previewDiv = document.getElementById(`preview-${menuName}`);
       previewDiv.style.color = 'var(--primary)';
-      previewDiv.innerText = "사진을 1:1로 자르고 전송 중입니다... ⏳";
+      previewDiv.innerText = "사진을 압축하고 전송 중입니다... ⏳";
 
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -332,13 +345,25 @@
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
-          const size = Math.min(img.width, img.height);
-          const startX = (img.width - size) / 2;
-          const startY = (img.height - size) / 2;
+          const MAX_SIZE = 800;
+          let width = img.width;
+          let height = img.height;
 
-          canvas.width = 800;
-          canvas.height = 800;
-          ctx.drawImage(img, startX, startY, size, size, 0, 0, 800, 800);
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
           
           const base64Image = canvas.toDataURL('image/jpeg', 0.8);
           sendData(menuName, '', base64Image, previewDiv);
@@ -392,8 +417,18 @@
             
             const target = allData.find(m => m.name === menuName);
             if(target) target.imageUrl = result.imageUrl;
-          } else if (!base64Image) {
+          } else if (!base64Image && feedbackText) {
             previewDiv.innerText = "✅ 요청이 등록되었습니다.";
+            
+            const target = allData.find(m => m.name === menuName);
+            if(target) {
+                target.feedback = target.feedback ? target.feedback + "\n" + feedbackText : feedbackText;
+                const feedbackDisplay = document.getElementById(`feedback-display-${menuName}`);
+                if(feedbackDisplay) {
+                    feedbackDisplay.innerText = "💬 " + target.feedback;
+                    feedbackDisplay.style.display = "block";
+                }
+            }
           }
         }
       } catch (error) {
