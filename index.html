@@ -3,92 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>메뉴 관리 대시보드</title>
+  <title>수원 수제 테이크아웃 대시보드</title>
   <style>
+    /* 트렌디한 모바일 앱 스타일 변수 설정 */
     :root {
-      --primary: #2563eb;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-sub: #64748b;
-      --border: #e2e8f0;
-      --radius: 12px;
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --bg-color: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-sub: #64748B;
+      --border-color: #E2E8F0;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.08);
     }
 
-    * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-    body { margin: 0; background-color: var(--bg); color: var(--text-main); }
+    * { box-sizing: border-box; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { margin: 0; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
-    header { background: #fff; padding: 20px; text-align: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-    header h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--primary); }
+    /* 상단 헤더 */
+    header { background: var(--card-bg); padding: 18px 20px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    header h1 { margin: 0; font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
 
-    .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+    .container { padding: 20px; max-width: 600px; margin: 0 auto; padding-bottom: 40px; }
 
-    /* 타입별 카테고리 탭 */
-    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; justify-content: center; }
-    .cat-btn { flex: 1 1 calc(33% - 8px); min-width: 75px; padding: 14px 5px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: 0.2s; }
-    .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+    /* ★ 수정: 카테고리 탭 3개씩 2줄 (Grid 레이아웃) */
+    .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .cat-btn { padding: 14px 5px; background: var(--card-bg); border: 1.5px solid var(--border-color); border-radius: 16px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
+    .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-    /* 검색 및 드롭다운 컨트롤 패널 */
-    .control-panel { background: #fff; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .control-panel label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
+    /* 통합 컨트롤 패널 */
+    .control-panel { background: var(--card-bg); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(226, 232, 240, 0.8); }
+    .control-panel label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
     
-    .search-wrapper { position: relative; margin-bottom: 12px; }
-    .search-wrapper input { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 8px; outline: none; transition: border-color 0.2s; }
-    .search-wrapper input:focus { border-color: var(--primary); }
+    .search-wrapper { position: relative; margin-bottom: 16px; }
+    .search-input { width: 100%; padding: 16px; padding-left: 44px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background-color: #F1F5F9; transition: all 0.2s; }
+    .search-input:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #94A3B8; }
     
-    /* 검색 자동완성 추천창 */
-    .suggestions { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--primary); border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .suggestions { display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 220px; overflow-y: auto; z-index: 20; box-shadow: var(--shadow-md); }
     .suggestions.active { display: block; }
-    .suggestion-item { padding: 12px 16px; font-size: 15px; font-weight: 600; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
-    .suggestion-item:hover { background-color: #eff6ff; color: var(--primary); }
+    .suggestion-item { padding: 14px 16px; font-size: 15px; font-weight: 600; cursor: pointer; border-bottom: 1px solid #F1F5F9; transition: background 0.15s; }
+    .suggestion-item:hover { background-color: #EEF2FF; color: var(--primary); }
 
-    .dropdown-select { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid var(--border); border-radius: 8px; outline: none; background: #f8fafc; appearance: none; cursor: pointer; }
-    .dropdown-select:focus { border-color: var(--primary); }
+    .dropdown-select { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; appearance: none; cursor: pointer; }
 
-    /* 메뉴 카드 스타일 */
-    .menu-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
-    .menu-title { font-size: 32px; font-weight: 900; margin: 0 0 16px 0; color: var(--primary); }
+    /* 메뉴 카드 UI */
+    .menu-card { background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); transition: transform 0.2s ease; }
+    .menu-card:active { transform: scale(0.98); }
     
-    /* 사진 비율 유지 영역 */
-    .img-box { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; background: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+    /* ★ 수정: 메뉴명 스타일 (사진 위로 배치됨) */
+    .menu-title { font-size: 24px; font-weight: 800; margin: 0; padding: 22px 22px 16px; color: var(--text-main); letter-spacing: -0.5px; }
+
+    .img-box { width: 100%; aspect-ratio: 1 / 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--border-color); border-top: 1px solid var(--border-color); }
     .img-box img { width: 100%; height: 100%; object-fit: contain; }
-    .img-placeholder { color: #94a3b8; font-size: 14px; font-weight: 600; }
+    .img-placeholder { color: #94A3B8; font-size: 15px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .img-placeholder::before { content: '📷'; font-size: 32px; opacity: 0.5; }
 
-    .recipe-details { background: #f8fafc; padding: 20px; border-radius: 8px; font-size: 25px; line-height: 1.4; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line; }
+    .card-content { padding: 20px 22px 22px; }
+    .recipe-details { background: #F1F5F9; padding: 20px; border-radius: var(--radius-md); font-size: 18px; line-height: 1.6; color: #334155; font-weight: 700; margin-bottom: 20px; white-space: pre-line; border: 1px solid #E2E8F0; }
+    .feedback-display { background: #FFFBEB; border: 1px solid #FDE68A; padding: 16px; border-radius: var(--radius-md); font-size: 15px; line-height: 1.5; color: #92400E; font-weight: 700; margin-bottom: 20px; white-space: pre-line; display: flex; align-items: flex-start; gap: 8px; }
 
-    /* ★ 추가: 피드백(보완 요청사항) 표시 영역 스타일 */
-    .feedback-display { background: #fffbeb; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; font-size: 16px; line-height: 1.5; color: #92400e; font-weight: 600; margin-bottom: 16px; white-space: pre-line; }
-
-    /* 액션 버튼 */
-    .actions { display: flex; gap: 10px; }
-    .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; }
-    .btn-photo { background: #e2e8f0; color: #475569; display: block; }
-    .btn-feedback { background: #fee2e2; color: #dc2626; }
-    .btn-full { flex: 100%; background: #f1f5f9; color: #334155; }
+    /* 버튼 스타일링 */
+    .actions { display: flex; gap: 12px; }
+    .btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius-md); font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; }
+    .btn-photo { background: #E2E8F0; color: #475569; }
+    .btn-photo:active { background: #CBD5E1; }
+    .btn-feedback { background: #FEE2E2; color: #DC2626; }
+    .btn-feedback:active { background: #FCA5A5; }
+    .btn-full { flex: 100%; background: var(--primary); color: #FFF; }
+    .btn-full:active { background: var(--primary-hover); }
     
-    .status-msg { font-size: 14px; font-weight: 800; color: var(--primary); margin-top: 10px; text-align: center; }
+    .status-msg { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 14px; text-align: center; }
 
-    /* 모달 */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+    /* 모달 디자인 */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; justify-content: center; align-items: flex-end; padding: 20px; backdrop-filter: blur(4px); }
     .modal-overlay.active { display: flex; }
-    .modal-content { background: #fff; width: 100%; max-width: 400px; padding: 24px; border-radius: 16px; }
-    .modal-content h3 { margin: 0 0 16px; font-size: 20px; }
-    textarea { width: 100%; height: 100px; padding: 12px; border: 2px solid var(--border); border-radius: 8px; resize: none; outline: none; margin-bottom: 16px; font-family: inherit; font-size: 16px; }
-    .modal-btns { display: flex; gap: 10px; }
+    .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; padding: 30px 24px; border-radius: 24px 24px 16px 16px; box-shadow: var(--shadow-md); animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    
+    .modal-content h3 { margin: 0 0 20px; font-size: 22px; font-weight: 800; color: var(--text-main); }
+    textarea { width: 100%; height: 120px; padding: 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); resize: none; outline: none; margin-bottom: 20px; font-family: inherit; font-size: 16px; font-weight: 500; background: #F8FAFC; transition: border-color 0.2s; }
+    textarea:focus { border-color: var(--primary); background: #FFF; }
+    .modal-btns { display: flex; gap: 12px; }
     .btn-submit { background: var(--primary); color: #fff; }
 
-    /* 전체 화면 오버레이 (비밀번호 및 로딩창) */
-    .fullscreen-overlay { position: fixed; inset: 0; background: #fff; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    /* 전체 화면 오버레이 */
+    .fullscreen-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(10px); }
     .fullscreen-overlay.hidden { display: none !important; }
     
-    .pw-box { background: #f8fafc; padding: 30px; border-radius: 16px; border: 1px solid var(--border); text-align: center; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .pw-box h2 { margin-top: 0; color: var(--primary); margin-bottom: 20px; font-size: 24px; }
-    .pw-box input { width: 100%; padding: 14px; font-size: 20px; text-align: center; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 16px; outline: none; letter-spacing: 4px; }
-    .pw-box input:focus { border-color: var(--primary); }
+    .pw-box { background: var(--card-bg); padding: 40px 30px; border-radius: var(--radius-lg); border: 1px solid rgba(226, 232, 240, 0.8); text-align: center; width: 100%; max-width: 340px; box-shadow: var(--shadow-md); }
+    .pw-box h2 { margin-top: 0; color: var(--text-main); margin-bottom: 24px; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .pw-box input { width: 100%; padding: 16px; font-size: 24px; font-weight: 700; text-align: center; border: 2px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 20px; outline: none; letter-spacing: 6px; background: #F8FAFC; transition: border-color 0.2s; }
+    .pw-box input:focus { border-color: var(--primary); background: #FFF; }
     
-    .loading-spinner { font-size: 50px; margin-bottom: 20px; animation: bounce 1.5s infinite; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-    .loading-text { font-size: 20px; font-weight: bold; color: var(--text-main); text-align: center; line-height: 1.5; }
+    .loading-spinner { width: 60px; height: 60px; border: 4px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loading-text { font-size: 18px; font-weight: 800; color: var(--text-main); text-align: center; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -97,54 +110,59 @@
     <div class="pw-box">
       <h2>🔒 관리자 인증</h2>
       <input type="password" id="pw-input" placeholder="비밀번호" maxlength="4" inputmode="numeric">
-      <button class="btn btn-submit" onclick="checkPassword()">대시보드 입장</button>
+      <button class="btn btn-submit" style="width: 100%;" onclick="checkPassword()">대시보드 입장</button>
     </div>
   </div>
 
   <div id="loading-overlay" class="fullscreen-overlay hidden">
-    <div class="loading-spinner">⏳</div>
-    <div class="loading-text">데이터를 불러오는 중입니다</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-text">최신 메뉴 데이터를<br>동기화하고 있습니다</div>
   </div>
 
   <header>
-    <h1>수원지역 수제 테이크아웃</h1>
+    <h1>수원 수제 테이크아웃</h1>
   </header>
 
   <div class="container">
+    <!-- ★ 수정: 3개씩 2줄 Grid 적용 탭 -->
     <div class="category-grid" id="category-tabs">
-      <div class="cat-btn active" data-cat="샐러드">샐러드</div>
-      <div class="cat-btn" data-cat="델리">델리</div>
-      <div class="cat-btn" data-cat="요거트">요거트</div>
-      <div class="cat-btn" data-cat="과일">과일</div>
-      <div class="cat-btn" data-cat="김밥">김밥</div>
-      <div class="cat-btn" data-cat="말이">말이</div>
+      <div class="cat-btn active" data-cat="샐러드">🥗 샐러드</div>
+      <div class="cat-btn" data-cat="델리">🥪 델리</div>
+      <div class="cat-btn" data-cat="요거트">🥣 요거트</div>
+      <div class="cat-btn" data-cat="과일">🍎 과일</div>
+      <div class="cat-btn" data-cat="김밥">🍙 김밥</div>
+      <div class="cat-btn" data-cat="말이">🌯 말이</div>
     </div>
 
+    <!-- 통합 컨트롤 패널 -->
     <div class="control-panel">
       <div class="search-wrapper">
-        <label>🔍 메뉴명 자동완성 검색</label>
-        <input type="text" id="searchInput" placeholder="메뉴명을 입력하세요..." autocomplete="off">
+        <label>메뉴명 검색</label>
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="어떤 메뉴를 찾으시나요?" autocomplete="off">
         <div id="suggestions" class="suggestions"></div>
       </div>
       
       <div>
-        <label id="dropdownLabel">📋 샐러드 메뉴 리스트</label>
+        <label id="dropdownLabel">카테고리 전체보기</label>
         <select id="categoryDropdown" class="dropdown-select">
-          <option value="ALL">전체보기</option>
+          <option value="ALL">전체 목록 보기</option>
         </select>
       </div>
     </div>
 
+    <!-- 앱 UI 카드 출력 영역 -->
     <div id="menu-container"></div>
   </div>
 
+  <!-- 세련된 바텀업 스타일 모달 -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content">
-      <h3 id="modal-title">요청사항 작성</h3>
-      <textarea id="feedback-text" placeholder="현장 의견을 자유롭게 적어주세요."></textarea>
+      <h3 id="modal-title">보완 요청 작성</h3>
+      <textarea id="feedback-text" placeholder="개선이 필요한 부분을 상세히 적어주세요."></textarea>
       <div class="modal-btns">
         <button class="btn btn-photo" onclick="closeModal()">취소</button>
-        <button class="btn btn-submit" onclick="submitFeedback()">시트로 전송</button>
+        <button class="btn btn-submit" onclick="submitFeedback()">🚀 시트로 전송</button>
       </div>
     </div>
   </div>
@@ -166,7 +184,6 @@
       if (pw === "0000") {
         document.getElementById('password-overlay').classList.add('hidden');
         
-        // ★ 방문 기록 몰래 전송 로직
         fetch(SCRIPT_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -203,7 +220,7 @@
         updateCategory(currentCategory);
         loadingOverlay.classList.add('hidden'); 
       } catch (err) {
-        loadingOverlay.innerHTML = '<div class="loading-text" style="color:#dc2626;">❌ 데이터 로딩 실패<br>다시 시도해주세요.</div>';
+        loadingOverlay.innerHTML = '<div class="loading-text" style="color:#DC2626;">❌ 로딩 실패<br>인터넷 연결을 확인해주세요.</div>';
       }
     }
 
@@ -217,11 +234,11 @@
 
     function updateCategory(category) {
       currentCategory = category;
-      dropdownLabel.innerText = `📋 ${category} 메뉴 리스트`;
+      dropdownLabel.innerText = `${category} 메뉴 리스트`;
       searchInput.value = '';
       suggestionsBox.classList.remove('active');
       
-      dropdown.innerHTML = '<option value="ALL">전체보기</option>';
+      dropdown.innerHTML = '<option value="ALL">전체 목록 보기</option>';
       const categoryData = allData.filter(m => m.category === currentCategory)
                                   .sort((a, b) => a.name.localeCompare(b.name));
                                   
@@ -290,7 +307,7 @@
       }
 
       if (renderData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-weight:bold; padding: 20px; font-size:18px;">메뉴가 없습니다.</p>';
+        container.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:#94A3B8; font-weight:700; font-size:18px; background:#fff; border-radius:20px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">메뉴를 찾을 수 없습니다 🌿</div>';
         return;
       }
 
@@ -300,31 +317,34 @@
         
         const imageHTML = item.imageUrl 
           ? `<img src="${item.imageUrl}" alt="${item.name}">` 
-          : `<span class="img-placeholder">등록된 사진이 없습니다.</span>`;
+          : `<div class="img-placeholder"><span>사진 없음</span></div>`;
 
         const feedbackHTML = item.feedback && item.feedback.trim() !== ""
-          ? `<div class="feedback-display" id="feedback-display-${item.name}">💬 ${item.feedback}</div>`
+          ? `<div class="feedback-display" id="feedback-display-${item.name}">💡 <span>${item.feedback}</span></div>`
           : `<div class="feedback-display" id="feedback-display-${item.name}" style="display:none;"></div>`;
 
         const buttonsHTML = item.imageUrl
           ? `<button class="btn btn-full" onclick="openModal('${item.name}')">✍️ 보완 요청하기</button>`
           : `<label class="btn btn-photo">
-               📸 사진 등록
+               📸 사진 업로드
                <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, '${item.name}')">
              </label>
              <button class="btn btn-feedback" onclick="openModal('${item.name}')">✍️ 보완 요청</button>`;
 
+        // ★ 수정: 메뉴명을 사진 영역 위로 배치
         card.innerHTML = `
           <h2 class="menu-title">${item.name}</h2>
           <div class="img-box" id="img-box-${item.name}">
             ${imageHTML}
           </div>
-          ${feedbackHTML}
-          <div class="recipe-details">${item.details}</div>
-          <div class="actions" id="action-box-${item.name}">
-            ${buttonsHTML}
+          <div class="card-content">
+            ${feedbackHTML}
+            <div class="recipe-details">${item.details}</div>
+            <div class="actions" id="action-box-${item.name}">
+              ${buttonsHTML}
+            </div>
+            <div id="preview-${item.name}" class="status-msg"></div>
           </div>
-          <div id="preview-${item.name}" class="status-msg"></div>
         `;
         container.appendChild(card);
       });
@@ -336,7 +356,7 @@
 
       const previewDiv = document.getElementById(`preview-${menuName}`);
       previewDiv.style.color = 'var(--primary)';
-      previewDiv.innerText = "사진을 압축하고 전송 중입니다... ⏳";
+      previewDiv.innerText = "🚀 최적화 및 전송 중...";
 
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -375,7 +395,7 @@
 
     function openModal(menuName) {
       currentModalMenu = menuName;
-      document.getElementById('modal-title').innerText = menuName + " 요청사항";
+      document.getElementById('modal-title').innerText = "📝 " + menuName;
       document.getElementById('feedback-text').value = '';
       document.getElementById('feedback-modal').classList.add('active');
     }
@@ -393,7 +413,6 @@
       btn.innerText = "전송 중...";
       
       sendData(currentModalMenu, text, null, null).then(() => {
-        alert('구글 시트에 성공적으로 반영되었습니다!');
         closeModal();
         btn.innerText = originalText;
       });
@@ -413,28 +432,29 @@
           if(base64Image && result.imageUrl) {
             document.getElementById(`img-box-${menuName}`).innerHTML = `<img src="${result.imageUrl}">`;
             document.getElementById(`action-box-${menuName}`).innerHTML = `<button class="btn btn-full" onclick="openModal('${menuName}')">✍️ 보완 요청하기</button>`;
-            previewDiv.innerText = "✅ 사진이 구글 드라이브에 저장되었습니다.";
+            previewDiv.innerText = "✨ 사진 업데이트 완료";
             
             const target = allData.find(m => m.name === menuName);
             if(target) target.imageUrl = result.imageUrl;
           } else if (!base64Image && feedbackText) {
-            previewDiv.innerText = "✅ 요청이 등록되었습니다.";
+            previewDiv.innerText = "✨ 요청 등록 완료";
             
             const target = allData.find(m => m.name === menuName);
             if(target) {
                 target.feedback = target.feedback ? target.feedback + "\n" + feedbackText : feedbackText;
                 const feedbackDisplay = document.getElementById(`feedback-display-${menuName}`);
                 if(feedbackDisplay) {
-                    feedbackDisplay.innerText = "💬 " + target.feedback;
-                    feedbackDisplay.style.display = "block";
+                    feedbackDisplay.innerHTML = `💡 <span>${target.feedback}</span>`;
+                    feedbackDisplay.style.display = "flex";
                 }
             }
           }
+          setTimeout(() => { previewDiv.innerText = ""; }, 3000);
         }
       } catch (error) {
         if(previewDiv) {
-          previewDiv.style.color = '#dc2626';
-          previewDiv.innerText = "❌ 전송 실패";
+          previewDiv.style.color = '#DC2626';
+          previewDiv.innerText = "❌ 네트워크 오류";
         }
       }
     }
