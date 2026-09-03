@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>수원 수제 테이크아웃 대시보드</title>
   
-  <!-- ★ 앱 아이콘 및 바탕화면 바로가기 설정 추가 ★ -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#F8FAFC">
-  <!-- 아이폰(iOS) 사파리 전용 설정 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="수원수제">
-  <link rel="apple-touch-icon" href="./icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
 
   <style>
     :root {
@@ -101,16 +99,22 @@
     
     .status-msg { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 14px; text-align: center; }
 
+    /* 모달 공통 스타일 */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; justify-content: center; align-items: flex-end; padding: 20px; backdrop-filter: blur(4px); }
     .modal-overlay.active { display: flex; }
     .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; padding: 30px 24px; border-radius: 24px 24px 16px 16px; box-shadow: var(--shadow-md); animation: slideUp 0.3s ease-out; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     
-    .modal-content h3 { margin: 0 0 20px; font-size: 22px; font-weight: 800; color: var(--text-main); }
+    .modal-content h3 { margin: 0 0 20px; font-size: 22px; font-weight: 800; color: var(--text-main); text-align: center; }
     textarea { width: 100%; height: 120px; padding: 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); resize: none; outline: none; margin-bottom: 20px; font-family: inherit; font-size: 16px; font-weight: 500; background: #F8FAFC; transition: border-color 0.2s; }
     textarea:focus { border-color: var(--primary); background: #FFF; }
     .modal-btns { display: flex; gap: 12px; }
     .btn-submit { background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #fff; border: none; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); }
+
+    /* ★ 추가: 팝업 진행상태 텍스트 */
+    .status-text { font-size: 18px; font-weight: 800; color: #DC2626; text-align: center; margin-bottom: 20px; display: none; }
+    .status-text.active { display: block; }
+    .status-text.success { color: #0F766E; }
 
     .fullscreen-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(10px); }
     .fullscreen-overlay.hidden { display: none !important; }
@@ -173,18 +177,24 @@
     <div id="menu-container"></div>
   </div>
 
+  <!-- ★ 모달 UI 변경: 로딩 텍스트 영역 추가 및 확인 버튼 동작 수정 -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content">
       <h3 id="modal-title">보완 요청 작성</h3>
       <textarea id="feedback-text" placeholder="개선이 필요한 부분을 상세히 적어주세요."></textarea>
-      <div class="modal-btns">
+      <div id="modal-status-text" class="status-text"></div>
+      <div class="modal-btns" id="modal-actions">
         <button class="btn btn-photo" style="background:#F0F0F5; color:#1C1C1E; box-shadow:none;" onclick="closeModal()">취소</button>
         <button class="btn btn-submit" style="flex:1;" onclick="submitFeedback()">🚀 시트로 전송</button>
+      </div>
+      <div class="modal-btns" id="modal-done-action" style="display:none;">
+        <button class="btn btn-submit" style="flex:1;" onclick="closeModal()">확인 (돌아가기)</button>
       </div>
     </div>
   </div>
 
   <script>
+    // 기존 스크립트 URL 유지
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5-c2tli_m9nGzhmZUapV2KrvkafC6-qhQvtRs4KU3qqj5JGG6NpxIXdy4IyYSELcU/exec'; 
 
     let allData = [];
@@ -195,6 +205,15 @@
     const suggestionsBox = document.getElementById('suggestions');
     const dropdown = document.getElementById('categoryDropdown');
     const dropdownLabel = document.getElementById('dropdownLabel');
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const pwInput = document.getElementById("pw-input");
+      pwInput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+          checkPassword();
+        }
+      });
+    });
 
     function checkPassword() {
       const pw = document.getElementById('pw-input').value;
@@ -409,31 +428,66 @@
       reader.readAsDataURL(file);
     }
 
+    // ★ 모달창 열기 초기화 함수 업데이트
     function openModal(menuName) {
       currentModalMenu = menuName;
       document.getElementById('modal-title').innerText = "📝 " + menuName;
-      document.getElementById('feedback-text').value = '';
+      const textArea = document.getElementById('feedback-text');
+      textArea.value = '';
+      textArea.style.display = 'block'; // 입력창 보이기
+      
+      const statusText = document.getElementById('modal-status-text');
+      statusText.classList.remove('active', 'success');
+      statusText.innerText = '';
+      
+      document.getElementById('modal-actions').style.display = 'flex'; // 기존 취소/전송 버튼 보이기
+      document.getElementById('modal-done-action').style.display = 'none'; // 완료 버튼 숨기기
+      
       document.getElementById('feedback-modal').classList.add('active');
     }
 
+    // ★ 모달창 닫기 함수 업데이트 (데이터 다시 그리기 포함)
     function closeModal() {
       document.getElementById('feedback-modal').classList.remove('active');
+      // 사용자가 모달창을 닫으면 변경된 데이터 반영을 위해 리스트 다시 그림
+      if(document.getElementById('modal-status-text').classList.contains('success')) {
+         renderCards("ALL");
+      }
     }
 
+    // ★ 팝업 피드백 전송 및 UI 제어 로직 업데이트
     function submitFeedback() {
       const text = document.getElementById('feedback-text').value;
       if (!text) return alert('내용을 입력해주세요.');
       
-      const btn = document.querySelector('.btn-submit');
-      const originalText = btn.innerText;
-      btn.innerText = "전송 중...";
+      const textArea = document.getElementById('feedback-text');
+      const statusText = document.getElementById('modal-status-text');
+      const actionsDiv = document.getElementById('modal-actions');
+      const doneActionDiv = document.getElementById('modal-done-action');
       
-      sendData(currentModalMenu, text, null, null).then(() => {
-        closeModal();
-        btn.innerText = originalText;
+      // 전송 중 상태 표시
+      textArea.style.display = 'none'; // 입력창 숨기기
+      actionsDiv.style.display = 'none'; // 취소/전송 버튼 숨기기
+      
+      statusText.innerText = "🚀 구글 시트로 요청사항을\n안전하게 전송하고 있습니다...";
+      statusText.classList.remove('success');
+      statusText.classList.add('active');
+      
+      // 백엔드로 데이터 전송
+      sendData(currentModalMenu, text, null, null).then((success) => {
+        if(success) {
+            statusText.innerText = "✅ 전송 완료!\n\n요청사항이 시트에 기록되었습니다.";
+            statusText.classList.add('success');
+            doneActionDiv.style.display = 'flex'; // 확인 버튼 표시
+        } else {
+            statusText.innerText = "❌ 전송에 실패했습니다.\n인터넷 연결을 확인하고 다시 시도해주세요.";
+            actionsDiv.style.display = 'flex'; // 취소/전송 버튼 다시 보이기
+            textArea.style.display = 'block'; // 텍스트 유지한 채로 입력창 다시 보이기
+        }
       });
     }
 
+    // ★ sendData 함수 수정: Promise 반환 처리 및 에러 제어
     async function sendData(menuName, feedbackText, base64Image, previewDiv) {
       const payload = { menuName: menuName, feedback: feedbackText, image: base64Image };
       try {
@@ -444,6 +498,7 @@
         });
         const result = await response.json();
 
+        // 미리보기 영역(이미지 업로드) 제어
         if(previewDiv) {
           if(base64Image && result.imageUrl) {
             document.getElementById(`img-box-${menuName}`).innerHTML = `<img src="${result.imageUrl}">`;
@@ -452,26 +507,24 @@
             
             const target = allData.find(m => m.name === menuName);
             if(target) target.imageUrl = result.imageUrl;
-          } else if (!base64Image && feedbackText) {
-            previewDiv.innerText = "✨ 요청 등록 완료";
-            
+          } 
+          setTimeout(() => { previewDiv.innerText = ""; }, 3000);
+        }
+        
+        // 피드백 전송 완료 시 내부 데이터(allData) 즉시 업데이트
+        if (!base64Image && feedbackText) {
             const target = allData.find(m => m.name === menuName);
             if(target) {
                 target.feedback = target.feedback ? target.feedback + "\n" + feedbackText : feedbackText;
-                const feedbackDisplay = document.getElementById(`feedback-display-${menuName}`);
-                if(feedbackDisplay) {
-                    feedbackDisplay.innerHTML = `💡 <span>${target.feedback}</span>`;
-                    feedbackDisplay.style.display = "flex";
-                }
             }
-          }
-          setTimeout(() => { previewDiv.innerText = ""; }, 3000);
         }
+        return true;
       } catch (error) {
         if(previewDiv) {
           previewDiv.style.color = '#DC2626';
           previewDiv.innerText = "❌ 네트워크 오류";
         }
+        return false;
       }
     }
   </script>
