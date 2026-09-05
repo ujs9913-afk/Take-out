@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>수원 수제 테이크아웃 대시보드</title>
   
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#F8FAFC">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="수원수제">
-  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="apple-touch-icon" href="./icon.png">
 
   <style>
     :root {
@@ -38,33 +38,31 @@
     .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .cat-btn { padding: 14px 5px; background: var(--card-bg); border: 1.5px solid var(--border-color); border-radius: 16px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
     
-    .cat-btn.active { 
-      background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); 
-      color: #fff; 
-      border: none; 
-      box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); 
-      transform: translateY(-2px);
-    }
+    .cat-btn.active { background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #fff; border: none; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); transform: translateY(-2px); }
 
-    .control-panel { background: var(--card-bg); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(226, 232, 240, 0.8); }
-    .control-panel label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
+    .control-panel { background: var(--card-bg); padding: 16px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(226, 232, 240, 0.8); }
     
-    .search-wrapper { position: relative; margin-bottom: 16px; }
-    .search-input { width: 100%; padding: 16px; padding-left: 44px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background-color: #F1F5F9; transition: all 0.2s; }
+    /* 필터 레이아웃 개선 */
+    .filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .gubun-select { width: 40%; padding: 14px 10px; font-size: 14px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; cursor: pointer; appearance: none; }
+    .search-wrapper { width: 60%; position: relative; }
+    .search-input { width: 100%; padding: 14px; padding-left: 40px; font-size: 14px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background-color: #F1F5F9; transition: all 0.2s; }
     .search-input:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #94A3B8; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #94A3B8; }
     
+    .dropdown-select { width: 100%; padding: 14px 16px; font-size: 15px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; appearance: none; cursor: pointer; }
+
     .suggestions { display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 220px; overflow-y: auto; z-index: 20; box-shadow: var(--shadow-md); }
     .suggestions.active { display: block; }
     .suggestion-item { padding: 14px 16px; font-size: 15px; font-weight: 600; cursor: pointer; border-bottom: 1px solid #F1F5F9; transition: background 0.15s; }
     .suggestion-item:hover { background-color: #EEF2FF; color: var(--primary); }
 
-    .dropdown-select { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; appearance: none; cursor: pointer; }
-
     .menu-card { background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); transition: transform 0.2s ease; }
     .menu-card:active { transform: scale(0.98); }
     
-    .menu-title { font-size: 24px; font-weight: 800; margin: 0; padding: 22px 22px 16px; color: var(--text-main); letter-spacing: -0.5px; }
+    .menu-title-wrapper { padding: 22px 22px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .gubun-badge { display: inline-block; background-color: #EEF2FF; color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 800; border: 1px solid rgba(79, 70, 229, 0.2); }
+    .menu-title { font-size: 22px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px; line-height: 1.3; }
 
     .img-box { width: 100%; aspect-ratio: 4 / 3; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--border-color); border-top: 1px solid var(--border-color); }
     .img-box img { width: 100%; height: 100%; object-fit: contain; }
@@ -72,34 +70,17 @@
     .img-placeholder::before { content: '📷'; font-size: 44px; opacity: 0.4; }
 
     .card-content { padding: 20px 22px 22px; }
-    .recipe-details { background: #F1F5F9; padding: 20px; border-radius: var(--radius-md); font-size: 18px; line-height: 1.6; color: #334155; font-weight: 700; margin-bottom: 20px; white-space: pre-line; border: 1px solid #E2E8F0; }
-    .feedback-display { background: #FFFBEB; border: 1px solid #FDE68A; padding: 16px; border-radius: var(--radius-md); font-size: 15px; line-height: 1.5; color: #92400E; font-weight: 700; margin-bottom: 20px; white-space: pre-line; display: flex; align-items: flex-start; gap: 8px; }
+    .recipe-details { background: #F1F5F9; padding: 20px; border-radius: var(--radius-md); font-size: 16px; line-height: 1.6; color: #334155; font-weight: 700; margin-bottom: 20px; white-space: pre-line; border: 1px solid #E2E8F0; }
+    .feedback-display { background: #FFFBEB; border: 1px solid #FDE68A; padding: 16px; border-radius: var(--radius-md); font-size: 14px; line-height: 1.5; color: #92400E; font-weight: 700; margin-bottom: 20px; white-space: pre-line; display: flex; align-items: flex-start; gap: 8px; }
 
     .actions { display: flex; gap: 12px; }
-    .btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius-md); font-size: 16px; font-weight: 800; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
+    .btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 800; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease; }
     .btn:active { transform: scale(0.96); }
-
-    .btn-feedback, .btn-full { 
-      background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); 
-      color: #FFF; 
-      box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); 
-    }
-    .btn-feedback:active, .btn-full:active { 
-      box-shadow: 0 2px 8px rgba(49, 46, 129, 0.3); 
-    }
-
-    .btn-photo { 
-      background: linear-gradient(135deg, #2DD4BF 0%, #0F766E 100%); 
-      color: #FFF; 
-      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.3); 
-    }
-    .btn-photo:active { 
-      box-shadow: 0 2px 8px rgba(15, 118, 110, 0.2); 
-    }
+    .btn-feedback, .btn-full { background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #FFF; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); }
+    .btn-photo { background: linear-gradient(135deg, #2DD4BF 0%, #0F766E 100%); color: #FFF; box-shadow: 0 6px 16px rgba(15, 118, 110, 0.3); }
     
     .status-msg { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 14px; text-align: center; }
 
-    /* 모달 공통 스타일 */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; justify-content: center; align-items: flex-end; padding: 20px; backdrop-filter: blur(4px); }
     .modal-overlay.active { display: flex; }
     .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; padding: 30px 24px; border-radius: 24px 24px 16px 16px; box-shadow: var(--shadow-md); animation: slideUp 0.3s ease-out; }
@@ -111,7 +92,6 @@
     .modal-btns { display: flex; gap: 12px; }
     .btn-submit { background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #fff; border: none; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); }
 
-    /* ★ 추가: 팝업 진행상태 텍스트 */
     .status-text { font-size: 18px; font-weight: 800; color: #DC2626; text-align: center; margin-bottom: 20px; display: none; }
     .status-text.active { display: block; }
     .status-text.success { color: #0F766E; }
@@ -150,26 +130,30 @@
 
   <div class="container">
     <div class="category-grid" id="category-tabs">
-      <div class="cat-btn active" data-cat="샐러드">🥗 샐러드</div>
-      <div class="cat-btn" data-cat="델리">🥪 델리</div>
+      <div class="cat-btn active" data-cat="델리">🥪 델리</div>
+      <div class="cat-btn" data-cat="샐러드">🥗 샐러드</div>
       <div class="cat-btn" data-cat="요거트">🥣 요거트</div>
       <div class="cat-btn" data-cat="과일">🍎 과일</div>
-      <div class="cat-btn" data-cat="김밥">🍙 김밥</div>
-      <div class="cat-btn" data-cat="말이">🌯 말이</div>
+      <div class="cat-btn" data-cat="밥류">🍚 밥류</div>
+      <div class="cat-btn" data-cat="샌드위치">🥪 샌드위치</div>
     </div>
 
     <div class="control-panel">
-      <div class="search-wrapper">
-        <label>메뉴명 검색</label>
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="어떤 메뉴를 찾으시나요?" autocomplete="off">
-        <div id="suggestions" class="suggestions"></div>
+      <!-- ★ 구분 드롭다운 & 검색어 통합 -->
+      <div class="filter-row">
+        <select id="gubunDropdown" class="gubun-select">
+          <option value="ALL">구분 전체보기</option>
+        </select>
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="메뉴명 검색" autocomplete="off">
+          <div id="suggestions" class="suggestions"></div>
+        </div>
       </div>
-      
+      <!-- ★ 전체메뉴 목록보기 드롭다운 복구 -->
       <div>
-        <label id="dropdownLabel">카테고리 전체보기</label>
         <select id="categoryDropdown" class="dropdown-select">
-          <option value="ALL">전체 목록 보기</option>
+          <option value="ALL">전체메뉴 목록보기</option>
         </select>
       </div>
     </div>
@@ -177,7 +161,6 @@
     <div id="menu-container"></div>
   </div>
 
-  <!-- ★ 모달 UI 변경: 로딩 텍스트 영역 추가 및 확인 버튼 동작 수정 -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content">
       <h3 id="modal-title">보완 요청 작성</h3>
@@ -194,24 +177,22 @@
   </div>
 
   <script>
-    // 기존 스크립트 URL 유지
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5-c2tli_m9nGzhmZUapV2KrvkafC6-qhQvtRs4KU3qqj5JGG6NpxIXdy4IyYSELcU/exec'; 
+    // ★ 주의: 앱 스크립트 '새 배포' 시 발급받은 URL을 여기에 반드시 입력하세요!
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUZckAS4G7BaVWQDMmK6vIKfkFed_VBojkUWBCn7SkX0RTRKr6WpzF1eGE9qawvQG9/exec'; 
 
     let allData = [];
-    let currentCategory = '샐러드';
+    let currentCategory = '델리';
     let currentModalMenu = '';
 
     const searchInput = document.getElementById('searchInput');
     const suggestionsBox = document.getElementById('suggestions');
-    const dropdown = document.getElementById('categoryDropdown');
-    const dropdownLabel = document.getElementById('dropdownLabel');
+    const gubunDropdown = document.getElementById('gubunDropdown');
+    const categoryDropdown = document.getElementById('categoryDropdown');
 
     document.addEventListener("DOMContentLoaded", () => {
       const pwInput = document.getElementById("pw-input");
       pwInput.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-          checkPassword();
-        }
+        if (event.key === "Enter") checkPassword();
       });
     });
 
@@ -219,14 +200,12 @@
       const pw = document.getElementById('pw-input').value;
       if (pw === "0000") {
         document.getElementById('password-overlay').classList.add('hidden');
-        
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
+        fetch(SCRIPT_URL, { 
+          method: 'POST', 
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: "recordVisit" })
-        }).catch(err => console.log("방문 기록 전송 실패", err));
-
+          body: JSON.stringify({ action: "recordVisit" }) 
+        }).catch(err => console.log("방문 기록 실패", err));
+        
         loadData();
       } else {
         alert("비밀번호가 일치하지 않습니다.");
@@ -237,14 +216,12 @@
     async function loadData() {
       const loadingOverlay = document.getElementById('loading-overlay');
       loadingOverlay.classList.remove('hidden'); 
-      
       try {
         const res = await fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: "getData" })
+          method: 'POST', 
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: "getData" }) 
         });
-        
         const rawData = await res.json();
         
         if (Array.isArray(rawData)) {
@@ -252,11 +229,10 @@
         } else if (rawData.data && Array.isArray(rawData.data)) {
             allData = rawData.data;
         }
-        
         updateCategory(currentCategory);
         loadingOverlay.classList.add('hidden'); 
       } catch (err) {
-        loadingOverlay.innerHTML = '<div class="loading-text" style="color:#DC2626;">❌ 로딩 실패<br>인터넷 연결을 확인해주세요.</div>';
+        loadingOverlay.innerHTML = '<div class="loading-text" style="color:#DC2626;">❌ 로딩 실패<br>앱 스크립트 권한이나 URL을 확인해주세요.</div>';
       }
     }
 
@@ -268,77 +244,93 @@
       });
     });
 
+    // 탭 카테고리 변경 시 데이터 재설정
     function updateCategory(category) {
       currentCategory = category;
-      dropdownLabel.innerText = `${category} 메뉴 리스트`;
       searchInput.value = '';
       suggestionsBox.classList.remove('active');
       
-      dropdown.innerHTML = '<option value="ALL">전체 목록 보기</option>';
-      const categoryData = allData.filter(m => m.category === currentCategory)
-                                  .sort((a, b) => a.name.localeCompare(b.name));
-                                  
-      categoryData.forEach(item => {
-        dropdown.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+      const categoryData = allData.filter(m => m.category === currentCategory);
+      const uniqueGubuns = [...new Set(categoryData.map(m => m.gubun).filter(Boolean))].sort();
+      
+      gubunDropdown.innerHTML = '<option value="ALL">구분 전체보기</option>';
+      uniqueGubuns.forEach(g => {
+        gubunDropdown.innerHTML += `<option value="${g}">${g}</option>`;
       });
 
-      renderCards("ALL");
+      updateMenuDropdown();
+      renderCards();
     }
 
-    dropdown.addEventListener('change', (e) => {
+    // ★ 구분에 맞춰 하단 '메뉴 목록보기' 데이터 필터링
+    function updateMenuDropdown() {
+      const selectedGubun = gubunDropdown.value;
+      let filteredData = allData.filter(m => m.category === currentCategory).sort((a, b) => a.name.localeCompare(b.name));
+      
+      if (selectedGubun !== "ALL") {
+        filteredData = filteredData.filter(m => m.gubun === selectedGubun);
+      }
+
+      categoryDropdown.innerHTML = '<option value="ALL">전체메뉴 목록보기</option>';
+      filteredData.forEach(item => {
+        categoryDropdown.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+      });
+    }
+
+    gubunDropdown.addEventListener('change', () => {
       searchInput.value = ''; 
-      renderCards(e.target.value);
+      categoryDropdown.value = 'ALL';
+      updateMenuDropdown();
+      renderCards();
+    });
+
+    categoryDropdown.addEventListener('change', () => {
+      searchInput.value = '';
+      renderCards();
     });
 
     searchInput.addEventListener('input', (e) => {
-      const val = e.target.value.trim().toLowerCase();
-      suggestionsBox.innerHTML = '';
-      
-      if (!val) {
-        suggestionsBox.classList.remove('active');
-        dropdown.value = "ALL";
-        renderCards("ALL");
-        return;
-      }
-
-      const matches = allData.filter(m => m.category === currentCategory && m.name.toLowerCase().includes(val));
-      
-      if (matches.length > 0) {
-        matches.forEach(match => {
-          const div = document.createElement('div');
-          div.className = 'suggestion-item';
-          div.innerText = match.name;
-          div.onclick = () => {
-            searchInput.value = match.name;
-            suggestionsBox.classList.remove('active');
-            dropdown.value = match.name; 
-            renderCards(match.name);
-          };
-          suggestionsBox.appendChild(div);
-        });
-        suggestionsBox.classList.add('active');
-      } else {
-        suggestionsBox.classList.remove('active');
-      }
+      renderCards();
     });
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.search-wrapper')) {
-        suggestionsBox.classList.remove('active');
-      }
-    });
-
-    function renderCards(filterValue, isSearchText = false) {
+    function renderCards() {
       const container = document.getElementById('menu-container');
       container.innerHTML = '';
+      suggestionsBox.innerHTML = '';
+      suggestionsBox.classList.remove('active');
 
       let renderData = allData.filter(m => m.category === currentCategory);
+      const selectedGubun = gubunDropdown.value;
+      const selectedMenu = categoryDropdown.value;
+      const searchText = searchInput.value.trim().toLowerCase();
+
+      // 구분 필터
+      if (selectedGubun !== "ALL") {
+        renderData = renderData.filter(m => m.gubun === selectedGubun);
+      }
       
-      if (filterValue !== "ALL") {
-        if (isSearchText) {
-          renderData = renderData.filter(m => m.name.toLowerCase().includes(filterValue.toLowerCase()));
-        } else {
-          renderData = renderData.filter(m => m.name === filterValue);
+      // 전체메뉴 목록보기 필터
+      if (selectedMenu !== "ALL") {
+        renderData = renderData.filter(m => m.name === selectedMenu);
+      }
+
+      // 텍스트 검색 필터
+      if (searchText) {
+        renderData = renderData.filter(m => m.name.toLowerCase().includes(searchText));
+        if (renderData.length > 0) {
+          renderData.forEach(match => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.innerText = match.name;
+            div.onclick = () => {
+              searchInput.value = match.name;
+              suggestionsBox.classList.remove('active');
+              categoryDropdown.value = match.name; // 드롭다운과 동기화
+              renderCards(); 
+            };
+            suggestionsBox.appendChild(div);
+          });
+          suggestionsBox.classList.add('active');
         }
       }
 
@@ -367,8 +359,13 @@
              </label>
              <button class="btn btn-feedback" onclick="openModal('${item.name}')">✍️ 보완 요청</button>`;
 
+        const gubunBadgeHTML = item.gubun ? `<span class="gubun-badge">${item.gubun}</span>` : '';
+
         card.innerHTML = `
-          <h2 class="menu-title">${item.name}</h2>
+          <div class="menu-title-wrapper">
+            ${gubunBadgeHTML}
+            <h2 class="menu-title">${item.name}</h2>
+          </div>
           <div class="img-box" id="img-box-${item.name}">
             ${imageHTML}
           </div>
@@ -385,6 +382,12 @@
       });
     }
 
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrapper')) {
+        suggestionsBox.classList.remove('active');
+      }
+    });
+
     function handleImageUpload(event, menuName) {
       const file = event.target.files[0];
       if (!file) return;
@@ -399,131 +402,91 @@
         img.onload = function() {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
           const MAX_SIZE = 800;
-          let width = img.width;
-          let height = img.height;
+          let width = img.width, height = img.height;
 
-          if (width > height) {
-            if (width > MAX_SIZE) {
-              height *= MAX_SIZE / width;
-              width = MAX_SIZE;
-            }
-          } else {
-            if (height > MAX_SIZE) {
-              width *= MAX_SIZE / height;
-              height = MAX_SIZE;
-            }
-          }
+          if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+          else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
 
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width = width; canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
           
-          const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-          sendData(menuName, '', base64Image, previewDiv);
+          sendData(menuName, '', canvas.toDataURL('image/jpeg', 0.8), previewDiv);
         }
         img.src = e.target.result;
       }
       reader.readAsDataURL(file);
     }
 
-    // ★ 모달창 열기 초기화 함수 업데이트
     function openModal(menuName) {
       currentModalMenu = menuName;
       document.getElementById('modal-title').innerText = "📝 " + menuName;
-      const textArea = document.getElementById('feedback-text');
-      textArea.value = '';
-      textArea.style.display = 'block'; // 입력창 보이기
-      
-      const statusText = document.getElementById('modal-status-text');
-      statusText.classList.remove('active', 'success');
-      statusText.innerText = '';
-      
-      document.getElementById('modal-actions').style.display = 'flex'; // 기존 취소/전송 버튼 보이기
-      document.getElementById('modal-done-action').style.display = 'none'; // 완료 버튼 숨기기
-      
+      document.getElementById('feedback-text').value = '';
+      document.getElementById('feedback-text').style.display = 'block'; 
+      document.getElementById('modal-status-text').classList.remove('active', 'success');
+      document.getElementById('modal-status-text').innerText = '';
+      document.getElementById('modal-actions').style.display = 'flex'; 
+      document.getElementById('modal-done-action').style.display = 'none'; 
       document.getElementById('feedback-modal').classList.add('active');
     }
 
-    // ★ 모달창 닫기 함수 업데이트 (데이터 다시 그리기 포함)
     function closeModal() {
       document.getElementById('feedback-modal').classList.remove('active');
-      // 사용자가 모달창을 닫으면 변경된 데이터 반영을 위해 리스트 다시 그림
-      if(document.getElementById('modal-status-text').classList.contains('success')) {
-         renderCards("ALL");
-      }
+      if(document.getElementById('modal-status-text').classList.contains('success')) renderCards();
     }
 
-    // ★ 팝업 피드백 전송 및 UI 제어 로직 업데이트
     function submitFeedback() {
       const text = document.getElementById('feedback-text').value;
       if (!text) return alert('내용을 입력해주세요.');
       
-      const textArea = document.getElementById('feedback-text');
+      document.getElementById('feedback-text').style.display = 'none'; 
+      document.getElementById('modal-actions').style.display = 'none'; 
       const statusText = document.getElementById('modal-status-text');
-      const actionsDiv = document.getElementById('modal-actions');
-      const doneActionDiv = document.getElementById('modal-done-action');
-      
-      // 전송 중 상태 표시
-      textArea.style.display = 'none'; // 입력창 숨기기
-      actionsDiv.style.display = 'none'; // 취소/전송 버튼 숨기기
       
       statusText.innerText = "🚀 구글 시트로 요청사항을\n안전하게 전송하고 있습니다...";
-      statusText.classList.remove('success');
-      statusText.classList.add('active');
+      statusText.classList.remove('success'); statusText.classList.add('active');
       
-      // 백엔드로 데이터 전송
       sendData(currentModalMenu, text, null, null).then((success) => {
         if(success) {
             statusText.innerText = "✅ 전송 완료!\n\n요청사항이 시트에 기록되었습니다.";
             statusText.classList.add('success');
-            doneActionDiv.style.display = 'flex'; // 확인 버튼 표시
+            document.getElementById('modal-done-action').style.display = 'flex'; 
         } else {
             statusText.innerText = "❌ 전송에 실패했습니다.\n인터넷 연결을 확인하고 다시 시도해주세요.";
-            actionsDiv.style.display = 'flex'; // 취소/전송 버튼 다시 보이기
-            textArea.style.display = 'block'; // 텍스트 유지한 채로 입력창 다시 보이기
+            document.getElementById('modal-actions').style.display = 'flex'; 
+            document.getElementById('feedback-text').style.display = 'block'; 
         }
       });
     }
 
-    // ★ sendData 함수 수정: Promise 반환 처리 및 에러 제어
     async function sendData(menuName, feedbackText, base64Image, previewDiv) {
       const payload = { menuName: menuName, feedback: feedbackText, image: base64Image };
       try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
+        const response = await fetch(SCRIPT_URL, { 
+          method: 'POST', 
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload) 
         });
         const result = await response.json();
 
-        // 미리보기 영역(이미지 업로드) 제어
         if(previewDiv) {
           if(base64Image && result.imageUrl) {
             document.getElementById(`img-box-${menuName}`).innerHTML = `<img src="${result.imageUrl}">`;
             document.getElementById(`action-box-${menuName}`).innerHTML = `<button class="btn btn-full" onclick="openModal('${menuName}')">✍️ 보완 요청하기</button>`;
             previewDiv.innerText = "✨ 사진 업데이트 완료";
-            
             const target = allData.find(m => m.name === menuName);
             if(target) target.imageUrl = result.imageUrl;
           } 
           setTimeout(() => { previewDiv.innerText = ""; }, 3000);
         }
         
-        // 피드백 전송 완료 시 내부 데이터(allData) 즉시 업데이트
         if (!base64Image && feedbackText) {
             const target = allData.find(m => m.name === menuName);
-            if(target) {
-                target.feedback = target.feedback ? target.feedback + "\n" + feedbackText : feedbackText;
-            }
+            if(target) target.feedback = target.feedback ? target.feedback + "\n" + feedbackText : feedbackText;
         }
         return true;
       } catch (error) {
-        if(previewDiv) {
-          previewDiv.style.color = '#DC2626';
-          previewDiv.innerText = "❌ 네트워크 오류";
-        }
+        if(previewDiv) { previewDiv.style.color = '#DC2626'; previewDiv.innerText = "❌ 네트워크 오류"; }
         return false;
       }
     }
