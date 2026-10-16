@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- [UX 1번] 화면 확대(줌인) 제한 해제 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>수원 수제 테이크아웃 대시보드</title>
   
   <link rel="manifest" href="./manifest.json">
@@ -39,10 +40,13 @@
     * { box-sizing: border-box; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { margin: 0; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
-    header { background: var(--card-bg); padding: 18px 20px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    /* [UX 2번] 상단 헤더 및 우측 새로고침 버튼 스타일 */
+    header { background: var(--card-bg); padding: 18px 20px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: flex; justify-content: center; align-items: center; }
     header h1 { margin: 0; font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+    .refresh-btn { position: absolute; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease, background-color 0.2s ease; }
+    .refresh-btn:active { transform: rotate(180deg) scale(0.9); background-color: #F1F5F9; }
 
-    .container { padding: 20px; max-width: 600px; margin: 0 auto; padding-bottom: 40px; }
+    .container { padding: 20px; max-width: 600px; margin: 0 auto; padding-bottom: 60px; }
 
     .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .cat-btn { padding: 14px 5px; background: var(--card-bg); border: 1.5px solid var(--border-color); border-radius: 16px; font-size: 15px; font-weight: 700; color: var(--text-sub); text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
@@ -51,14 +55,20 @@
 
     .control-panel { background: var(--card-bg); padding: 16px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(226, 232, 240, 0.8); }
     
+    /* [UX 1번] 모바일 클릭 시 자동 줌인 방지를 위해 입력 요소(select, input) 폰트 크기 16px 적용 */
+    /* [UX 3번] 검색어 삭제(✕) 버튼 공간 확보 및 스타일 추가 */
     .filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
-    .gubun-select { width: 40%; padding: 14px 10px; font-size: 14px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; cursor: pointer; appearance: none; }
+    .gubun-select { width: 40%; padding: 14px 10px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; cursor: pointer; appearance: none; }
     .search-wrapper { width: 60%; position: relative; }
-    .search-input { width: 100%; padding: 14px; padding-left: 40px; font-size: 14px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background-color: #F1F5F9; transition: all 0.2s; }
+    .search-input { width: 100%; padding: 14px 36px 14px 40px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background-color: #F1F5F9; transition: all 0.2s; }
     .search-input:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #94A3B8; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #94A3B8; pointer-events: none; }
     
-    .dropdown-select { width: 100%; padding: 14px 16px; font-size: 15px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; appearance: none; cursor: pointer; }
+    .clear-search-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #CBD5E1; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; font-weight: 800; display: none; align-items: center; justify-content: center; cursor: pointer; padding: 0; line-height: 1; }
+    .clear-search-btn.active { display: flex; }
+    .clear-search-btn:active { background: #94A3B8; }
+
+    .dropdown-select { width: 100%; padding: 14px 16px; font-size: 16px; font-weight: 600; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: #fff; appearance: none; cursor: pointer; }
 
     .suggestions { display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 220px; overflow-y: auto; z-index: 20; box-shadow: var(--shadow-md); }
     .suggestions.active { display: block; }
@@ -74,7 +84,7 @@
 
     .img-box { width: 100%; aspect-ratio: 4 / 3; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--border-color); border-top: 1px solid var(--border-color); }
     .img-box img { width: 100%; height: 100%; object-fit: contain; }
-    .img-placeholder { color: #94A3B8; font-size: 16px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; height: 100%; }
+    .img-placeholder { color: #94A3B8; font-size: 16px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; height: 100%; text-align: center; padding: 20px; }
     .img-placeholder::before { content: '📷'; font-size: 44px; opacity: 0.4; }
 
     .card-content { padding: 20px 22px 22px; }
@@ -88,6 +98,11 @@
     .btn-photo { background: linear-gradient(135deg, #2DD4BF 0%, #0F766E 100%); color: #FFF; box-shadow: 0 6px 16px rgba(15, 118, 110, 0.3); }
     
     .status-msg { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 14px; text-align: center; }
+
+    /* [UX 2번] 우측 하단 맨 위로 가기 플로팅 버튼 스타일 */
+    .scroll-top-btn { position: fixed; bottom: 24px; right: 20px; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%); color: #fff; border: none; font-size: 20px; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.4); cursor: pointer; z-index: 50; display: none; align-items: center; justify-content: center; transition: all 0.2s ease; }
+    .scroll-top-btn.active { display: flex; }
+    .scroll-top-btn:active { transform: scale(0.9); }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; justify-content: center; align-items: flex-end; padding: 20px; backdrop-filter: blur(4px); }
     .modal-overlay.active { display: flex; }
@@ -132,8 +147,10 @@
     <div class="loading-text">최신 메뉴 데이터를<br>동기화하고 있습니다</div>
   </div>
 
+  <!-- [UX 2번] 상단 헤더 우측에 🔄 새로고침 버튼 추가 -->
   <header>
     <h1>수원 수제 테이크아웃</h1>
+    <button class="refresh-btn" onclick="loadData()" title="데이터 새로고침">🔄</button>
   </header>
 
   <div class="container">
@@ -151,9 +168,11 @@
         <select id="gubunDropdown" class="gubun-select">
           <option value="ALL">구분 전체보기</option>
         </select>
+        <!-- [UX 3번] 검색창 우측에 ✕ 버튼 추가 -->
         <div class="search-wrapper">
           <span class="search-icon">🔍</span>
           <input type="text" id="searchInput" class="search-input" placeholder="메뉴명 검색" autocomplete="off">
+          <button type="button" id="clearSearchBtn" class="clear-search-btn" onclick="clearSearch()" title="검색어 지우기">✕</button>
           <div id="suggestions" class="suggestions"></div>
         </div>
       </div>
@@ -166,6 +185,9 @@
 
     <div id="menu-container"></div>
   </div>
+
+  <!-- [UX 2번] 우측 하단 ⬆️ 맨 위로 가기 플로팅 버튼 추가 -->
+  <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" title="맨 위로 이동">⬆️</button>
 
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content">
@@ -190,9 +212,11 @@
     let currentModalMenu = '';
 
     const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
     const suggestionsBox = document.getElementById('suggestions');
     const gubunDropdown = document.getElementById('gubunDropdown');
     const categoryDropdown = document.getElementById('categoryDropdown');
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
 
     document.addEventListener("DOMContentLoaded", () => {
       const pwInput = document.getElementById("pw-input");
@@ -200,6 +224,28 @@
         if (event.key === "Enter") checkPassword();
       });
     });
+
+    // [UX 2번] 스크롤 감지하여 맨 위로 가기 버튼 표시/숨김
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        scrollTopBtn.classList.add('active');
+      } else {
+        scrollTopBtn.classList.remove('active');
+      }
+    });
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // [UX 3번] 검색어 한 번에 지우기 및 전체 목록 복귀 함수
+    function clearSearch() {
+      searchInput.value = '';
+      clearSearchBtn.classList.remove('active');
+      suggestionsBox.classList.remove('active');
+      categoryDropdown.value = 'ALL';
+      renderCards();
+    }
 
     function checkPassword() {
       const pw = document.getElementById('pw-input').value;
@@ -252,6 +298,7 @@
     function updateCategory(category) {
       currentCategory = category;
       searchInput.value = '';
+      clearSearchBtn.classList.remove('active');
       suggestionsBox.classList.remove('active');
       
       const categoryData = allData.filter(m => m.category === currentCategory);
@@ -282,6 +329,7 @@
 
     gubunDropdown.addEventListener('change', () => {
       searchInput.value = ''; 
+      clearSearchBtn.classList.remove('active');
       categoryDropdown.value = 'ALL';
       updateMenuDropdown();
       renderCards();
@@ -289,10 +337,16 @@
 
     categoryDropdown.addEventListener('change', () => {
       searchInput.value = '';
+      clearSearchBtn.classList.remove('active');
       renderCards();
     });
 
-    searchInput.addEventListener('input', (e) => {
+    searchInput.addEventListener('input', () => {
+      if (searchInput.value.trim().length > 0) {
+        clearSearchBtn.classList.add('active');
+      } else {
+        clearSearchBtn.classList.remove('active');
+      }
       renderCards();
     });
 
@@ -324,6 +378,7 @@
             div.innerText = match.name;
             div.onclick = () => {
               searchInput.value = match.name;
+              clearSearchBtn.classList.add('active');
               suggestionsBox.classList.remove('active');
               categoryDropdown.value = match.name; 
               renderCards(); 
@@ -343,8 +398,9 @@
         const card = document.createElement('div');
         card.className = 'menu-card';
         
+        // [이미지 최적화] loading="lazy", decoding="async", onerror 안내 문구 적용
         const imageHTML = item.imageUrl 
-          ? `<img src="${item.imageUrl}" alt="${item.name}">` 
+          ? `<img src="${item.imageUrl}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=\\'img-placeholder\\'><span>이미지를 불러올 수 없습니다</span></div>'">` 
           : `<div class="img-placeholder"><span>사진 없음</span></div>`;
 
         const feedbackHTML = item.feedback && item.feedback.trim() !== ""
@@ -402,7 +458,8 @@
         img.onload = function() {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          const MAX_SIZE = 800;
+          // [이미지 최적화] 리사이징 해상도 720px 및 압축률 0.7 적용
+          const MAX_SIZE = 720;
           let width = img.width, height = img.height;
 
           if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
@@ -411,7 +468,7 @@
           canvas.width = width; canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
           
-          sendData(menuName, '', canvas.toDataURL('image/jpeg', 0.8), previewDiv);
+          sendData(menuName, '', canvas.toDataURL('image/jpeg', 0.7), previewDiv);
         }
         img.src = e.target.result;
       }
@@ -471,7 +528,7 @@
 
         if(previewDiv) {
           if(base64Image && result.imageUrl) {
-            document.getElementById(`img-box-${menuName}`).innerHTML = `<img src="${result.imageUrl}">`;
+            document.getElementById(`img-box-${menuName}`).innerHTML = `<img src="${result.imageUrl}" alt="${menuName}" loading="lazy" decoding="async" onerror="this.outerHTML='<div class=\\'img-placeholder\\'><span>이미지를 불러올 수 없습니다</span></div>'">`;
             document.getElementById(`action-box-${menuName}`).innerHTML = `<button class="btn btn-full" onclick="openModal('${menuName}')">✍️ 보완 요청하기</button>`;
             previewDiv.innerText = "✨ 사진 업데이트 완료";
             const target = allData.find(m => m.name === menuName);
