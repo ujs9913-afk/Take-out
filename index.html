@@ -18,7 +18,7 @@
   <meta property="og:title" content="수원 수제 테이크아웃 메뉴">
   <meta property="og:description" content="수원지역 수제 테이크아웃 메뉴 확인 및 보완 요청">
   
-  <!-- ★ 주의: 아래 content 속성에는 반드시 https://로 시작하는 전체 주소를 적어주세요! (예: https://junesangyoo.github.io/레포이름/icon.png) ★ -->
+  <!-- ★ 주의: 아래 content 속성에는 반드시 https://로 시작하는 전체 주소를 적어주세요! ★ -->
   <meta property="og:image" content="https://깃허브아이디.github.io/레포지토리이름/icon.png"> 
   <meta property="og:url" content="https://깃허브아이디.github.io/레포지토리이름/"> 
 
@@ -40,9 +40,14 @@
     * { box-sizing: border-box; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { margin: 0; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
-    /* [UX 2번] 상단 헤더 및 우측 새로고침 버튼 스타일 */
+    /* [UX 2번] 상단 헤더 및 좌/우측 버튼 스타일 */
     header { background: var(--card-bg); padding: 18px 20px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: flex; justify-content: center; align-items: center; }
     header h1 { margin: 0; font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+    
+    /* [추가] 좌측 전체 메뉴 표 보기 버튼 */
+    .table-view-btn { position: absolute; left: 16px; background: #EEF2FF; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2); font-size: 13px; font-weight: 800; cursor: pointer; padding: 7px 11px; border-radius: 10px; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease; }
+    .table-view-btn:active { transform: scale(0.94); background-color: #E0E7FF; }
+
     .refresh-btn { position: absolute; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease, background-color 0.2s ease; }
     .refresh-btn:active { transform: rotate(180deg) scale(0.9); background-color: #F1F5F9; }
 
@@ -119,6 +124,25 @@
     .status-text.active { display: block; }
     .status-text.success { color: #0F766E; }
 
+    /* [추가] 전체 메뉴 표(Table) 모달 전용 스타일 */
+    .table-modal-content { max-width: 560px; max-height: 85vh; display: flex; flex-direction: column; padding: 24px 20px; }
+    .table-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .table-modal-header h3 { margin: 0; font-size: 20px; text-align: left; }
+    .close-icon-btn { background: #F1F5F9; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 16px; font-weight: 800; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .table-filter-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+    .table-cat-select { flex: 1; padding: 10px 12px; font-size: 15px; font-weight: 700; border: 1.5px solid var(--border-color); border-radius: 10px; outline: none; background: #F8FAFC; }
+    .table-count-badge { font-size: 14px; font-weight: 800; color: var(--primary); background: #EEF2FF; padding: 10px 14px; border-radius: 10px; white-space: nowrap; }
+    .table-scroll-box { overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); flex: 1; }
+    .menu-list-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
+    .menu-list-table th { position: sticky; top: 0; background: #F1F5F9; color: #475569; font-weight: 800; padding: 12px 14px; border-bottom: 1.5px solid var(--border-color); z-index: 1; font-size: 14px; }
+    .menu-list-table td { padding: 13px 14px; border-bottom: 1px solid #F1F5F9; font-weight: 600; color: var(--text-main); vertical-align: middle; }
+    .menu-list-table tr:last-child td { border-bottom: none; }
+    .menu-list-table tbody tr { cursor: pointer; transition: background 0.15s; }
+    .menu-list-table tbody tr:hover, .menu-list-table tbody tr:active { background: #EEF2FF; }
+    .td-gubun { width: 32%; }
+    .td-name { width: 68%; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .mini-status { font-size: 13px; white-space: nowrap; opacity: 0.85; }
+
     .fullscreen-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(10px); }
     .fullscreen-overlay.hidden { display: none !important; }
     
@@ -147,8 +171,9 @@
     <div class="loading-text">최신 메뉴 데이터를<br>동기화하고 있습니다</div>
   </div>
 
-  <!-- [UX 2번] 상단 헤더 우측에 🔄 새로고침 버튼 추가 -->
+  <!-- 상단 헤더: 좌측 [📋 전체표] 버튼 / 우측 [🔄 새로고침] 버튼 -->
   <header>
+    <button class="table-view-btn" onclick="openTableModal()" title="전체 메뉴 표로 보기">📋 전체표</button>
     <h1>수원 수제 테이크아웃</h1>
     <button class="refresh-btn" onclick="loadData()" title="데이터 새로고침">🔄</button>
   </header>
@@ -189,6 +214,44 @@
   <!-- [UX 2번] 우측 하단 ⬆️ 맨 위로 가기 플로팅 버튼 추가 -->
   <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" title="맨 위로 이동">⬆️</button>
 
+  <!-- [추가] 전체 메뉴 구분/메뉴명 표(Table) 모달 창 -->
+  <div class="modal-overlay" id="table-modal" onclick="if(event.target === this) closeTableModal()">
+    <div class="modal-content table-modal-content">
+      <div class="table-modal-header">
+        <h3>📋 전체 메뉴 일람표</h3>
+        <button class="close-icon-btn" onclick="closeTableModal()">✕</button>
+      </div>
+      <div class="table-filter-bar">
+        <select id="tableCatFilter" class="table-cat-select" onchange="renderMenuTable()">
+          <option value="CURRENT">현재 카테고리만 보기</option>
+          <option value="ALL">전 카테고리 통합 보기</option>
+          <option value="델리">🥪 델리</option>
+          <option value="샐러드">🥗 샐러드</option>
+          <option value="요거트">🥣 요거트</option>
+          <option value="과일">🍎 과일</option>
+          <option value="밥류">🍚 밥류</option>
+          <option value="샌드위치">🥪 샌드위치</option>
+        </select>
+        <div id="tableTotalCount" class="table-count-badge">총 0개</div>
+      </div>
+      <div style="font-size: 12px; color: #64748B; font-weight: 600; margin-bottom: 8px;">
+        💡 항목을 터치하면 해당 메뉴 카드로 즉시 이동합니다. (📷:사진있음 / 💬:보완요청있음)
+      </div>
+      <div class="table-scroll-box">
+        <table class="menu-list-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>메뉴명</th>
+            </tr>
+          </thead>
+          <tbody id="menu-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기존 보완 요청 모달 창 -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content">
       <h3 id="modal-title">보완 요청 작성</h3>
@@ -435,6 +498,88 @@
           </div>
         `;
         container.appendChild(card);
+      });
+    }
+
+    // [추가] 전체 메뉴 표 모달 열기/닫기 및 렌더링 함수
+    function openTableModal() {
+      const filterSelect = document.getElementById('tableCatFilter');
+      filterSelect.value = currentCategory; // 기본값으로 현재 선택된 카테고리 표시
+      renderMenuTable();
+      document.getElementById('table-modal').classList.add('active');
+    }
+
+    function closeTableModal() {
+      document.getElementById('table-modal').classList.remove('active');
+    }
+
+    function renderMenuTable() {
+      const filterVal = document.getElementById('tableCatFilter').value;
+      const tbody = document.getElementById('menu-table-body');
+      const countBadge = document.getElementById('tableTotalCount');
+      tbody.innerHTML = '';
+
+      let list = [];
+      if (filterVal === 'ALL') {
+        list = [...allData];
+      } else if (filterVal === 'CURRENT') {
+        list = allData.filter(m => m.category === currentCategory);
+      } else {
+        list = allData.filter(m => m.category === filterVal);
+      }
+
+      // 구분 -> 메뉴명 순으로 깔끔하게 정렬
+      list.sort((a, b) => {
+        const gubunA = a.gubun || '기타';
+        const gubunB = b.gubun || '기타';
+        if (gubunA !== gubunB) return gubunA.localeCompare(gubunB);
+        return a.name.localeCompare(b.name);
+      });
+
+      countBadge.innerText = `총 ${list.length}개`;
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 30px; color:#94A3B8;">등록된 메뉴가 없습니다.</td></tr>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        const gubunText = item.gubun ? `<span class="gubun-badge">${item.gubun}</span>` : `<span style="color:#94A3B8; font-size:13px;">미지정</span>`;
+        const catPrefix = filterVal === 'ALL' ? `<div style="font-size:11px; color:#64748B; margin-bottom:2px;">[${item.category}]</div>` : '';
+        
+        const hasPhoto = item.imageUrl ? '📷' : '';
+        const hasFeedback = (item.feedback && item.feedback.trim() !== '') ? '💬' : '';
+
+        tr.innerHTML = `
+          <td class="td-gubun">${catPrefix}${gubunText}</td>
+          <td>
+            <div class="td-name">
+              <span>${item.name}</span>
+              <span class="mini-status">${hasPhoto} ${hasFeedback}</span>
+            </div>
+          </td>
+        `;
+
+        // 표의 행을 클릭하면 해당 카테고리/메뉴 카드로 즉시 점프
+        tr.onclick = () => {
+          if (currentCategory !== item.category) {
+            document.querySelectorAll('.cat-btn').forEach(b => {
+              b.classList.toggle('active', b.dataset.cat === item.category);
+            });
+            updateCategory(item.category);
+          }
+          gubunDropdown.value = 'ALL';
+          updateMenuDropdown();
+          categoryDropdown.value = item.name;
+          searchInput.value = '';
+          clearSearchBtn.classList.remove('active');
+          renderCards();
+          closeTableModal();
+          scrollToTop();
+        };
+
+        tbody.appendChild(tr);
       });
     }
 
